@@ -5,12 +5,12 @@ import java.util.Calendar
 
 import org.apache.kafka.connect.data.{Schema, SchemaBuilder, Struct}
 import org.apache.kafka.connect.source.SourceRecord
+import org.apache.kafka.connect.storage.OffsetStorageReader
 
 import scalaj.http.{Http, HttpResponse}
-
 import scala.collection.JavaConverters._
 
-case class TennetSourceRecordProducer() {
+case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) {
 
   var partition = Calendar.getInstance().get(Calendar.DAY_OF_YEAR)
 
@@ -44,9 +44,9 @@ case class TennetSourceRecordProducer() {
   }
 
   def ConnectOffset(): util.Map[String, Long] = {
-    Map("timestamp" -> System.currentTimeMillis
-    ).asJava
-  }
+        Map("timestamp" -> System.currentTimeMillis
+        ).asJava
+      }
 
   def RecordPayload: Int = {
     Calendar.getInstance().get(Calendar.SECOND)

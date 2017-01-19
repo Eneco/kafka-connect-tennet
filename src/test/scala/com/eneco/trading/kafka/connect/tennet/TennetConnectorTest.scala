@@ -1,21 +1,16 @@
-package com.dudebowski.kafka.connect.source
+package com.eneco.trading.kafka.connect.tennet
 
-import java.util.Calendar
-
-import com.eneco.trading.kafka.connect.tennet.TennetSourceRecordProducer
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.apache.kafka.connect.data.{Schema, SchemaBuilder, Struct}
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
-import scala.collection.JavaConverters._
 import scalaj.http._
 
-class SampleConnectorTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging {
+class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging {
   test("testing get xml") {
     val response: HttpResponse[String] = Http("http://www.tennet.org/xml/balancedeltaprices/balans-delta_2h.xml").asString
     //println(response.body)
     val imbalance = scala.xml.XML.loadString(response.body)
-    println("doing somethin")
+    println("doing something")
     (imbalance \\ "RECORD").foreach { record =>
       println("   record is")
       println(record \ "SEQUENCE_NUMBER")
@@ -29,11 +24,11 @@ class SampleConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
       println((record \ "EMERGENCY_POWER").text.toDouble)
     }
     println("next")
-    val results = TennetSourceRecordProducer().produce{"test"}
-    results.map (r =>println(r))
+    //val results = TennetSourceRecordProducer().produce{"test"}
+    //results.map (r =>println(r))
   }
-}
-
+ }
+//
 
 
 

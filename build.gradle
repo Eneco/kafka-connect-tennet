@@ -35,6 +35,7 @@ ext {
     avro4sVersion = "1.6.0"
     confluentVersion = '3.0.1'
     scalajHttpVersion = "2.3.0"
+    commonsCodecVersion = "1.10"
 }
 
 repositories {
@@ -52,12 +53,14 @@ dependencies {
     compile "io.confluent:kafka-schema-registry:$confluentVersion"
     compile "org.apache.avro:avro:$avroVersion"
     compile "org.scalaj:scalaj-http_$scalaMajorVersion:$scalajHttpVersion"
+    compile "commons-codec:commons-codec:$commonsCodecVersion"
 
     testCompile "org.scalacheck:scalacheck_$scalaMajorVersion:$scalaCheck"
     testCompile "org.scalatest:scalatest_$scalaMajorVersion:$scalaTest"
     testCompile "junit:junit:$junit"
     
     testRuntime "org.pegdown:pegdown:1.6.0"
+
 }
 
 task wrapper(type: Wrapper) {
