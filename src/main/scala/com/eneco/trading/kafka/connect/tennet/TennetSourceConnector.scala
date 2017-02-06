@@ -3,7 +3,6 @@ package com.eneco.trading.kafka.connect.tennet
 import java.util
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.apache.kafka.common.config.ConfigDef
 import org.apache.kafka.connect.connector.Task
 import org.apache.kafka.connect.errors.ConnectException
 import org.apache.kafka.connect.source.SourceConnector
@@ -29,15 +28,15 @@ class TennetSourceConnector extends  SourceConnector with StrictLogging {
     logger.info("stop")
   }
 
-  override def config() = TennetSourceConfig.definition
+  override def config() = TennetSourceConfig.config
 
   override def start(props: util.Map[String, String]): Unit = {
     logger.info("Start Tennet Connector with: ")
     logger.info(props.toString())
     configProps = Some(props)
     Try(new TennetSourceConfig(props)) match {
-      case Failure(f) => throw new ConnectException("Couldn't start due to configuration error")
-      case _ => logger.info("started")
+      case Failure(_) => throw new ConnectException("Couldn't start due to configuration error")
+      case _ => logger.info("Started Tennet source connector")
     }
   }
 
