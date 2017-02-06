@@ -6,9 +6,6 @@ services:
 language: scala
 scala: 2.11.7
 jdk: oraclejdk8
-before_script: 
-  - ulimit -u 30000
-  - chmod 777 gradlew
 install: gradle shadowJar -x test
 
 after_success:
