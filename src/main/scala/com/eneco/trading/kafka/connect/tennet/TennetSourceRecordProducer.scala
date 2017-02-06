@@ -9,14 +9,11 @@ import org.apache.kafka.connect.storage.OffsetStorageReader
 import scalaj.http.{Http, HttpResponse}
 
 
-
 case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) extends StrictLogging {
 
   var partition = "imbalance"
 
-  def produce(topic: String,url :String): Seq[SourceRecord] = {
-    logger.info("onProduce")
-
+  def produce(topic: String, url :String): Seq[SourceRecord] = {
     val response: HttpResponse[String] = Http(url).asString
     val data = TennetXml(offsetStorageReader, response.body)
     data.filter().map(r =>
@@ -66,5 +63,4 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("max_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .build()
   }
-
 }

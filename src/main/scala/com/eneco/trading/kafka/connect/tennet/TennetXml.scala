@@ -9,6 +9,7 @@ import org.apache.commons.codec.digest.DigestUtils
 import org.apache.kafka.connect.storage.OffsetStorageReader
 
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.xml.NodeSeq
 
@@ -18,8 +19,6 @@ object TennetXml {
 
 case class TennetXml(storageReader: OffsetStorageReader, body: String) extends StrictLogging {
 
-
-
   private val hash = DigestUtils.sha256Hex(body)
 
   //TODO fix day break
@@ -27,7 +26,6 @@ case class TennetXml(storageReader: OffsetStorageReader, body: String) extends S
   private  val offset = getConnectOffset(date)
 
   def dummyFromBody(): Seq[ImbalanceRecord] = {
-    //logger.info(body)
     val imbalance = scala.xml.XML.loadString(body)
 
     (imbalance \\ "RECORD").map(record =>
@@ -73,18 +71,11 @@ case class TennetXml(storageReader: OffsetStorageReader, body: String) extends S
     )
   }
 
-  def NodeSeqToDouble(value: NodeSeq) = {
-    value.text match {
-      case "" => None
-      case s:String => Some(s.toDouble)
-    }
-  }
+  def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
 
 
-  def filter(): Seq[ImbalanceRecord] = {
-    logger.info("filter")
-    fromBody().filter(isProcessed(_)).sortBy(_.SequenceNumber)
-  }
+  def filter(): Seq[ImbalanceRecord] = fromBody().filter(isProcessed(_)).sortBy(_.SequenceNumber)
+
 
   def isProcessed(record: ImbalanceRecord) : Boolean = {
     val lastSequence = offset.get.get("sequence")
@@ -99,27 +90,21 @@ case class TennetXml(storageReader: OffsetStorageReader, body: String) extends S
     offset
   }
 
-  def getConnectOffset(date: String): Option[util.Map[String, Any]] = {
-    logger.info("GetOffset")
-    TennetXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
-  }
+  def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
 
   def getOffsetFromStorage(name: String): Option[util.Map[String, Any]] = {
-    logger.info("GetOffsetFromStorage")
+    logger.info(s"Recovering offset for $name")
     storageReader.offset(Map("partition" -> date).asJava) match {
       case null =>
-        logger.info("no offset found")
-        Option(Map("sequence" -> 0l,
-          "hash" -> "").asJava)
+        logger.info(s"No offset found for $name")
+        Option(Map("sequence" -> 0l, "hash" -> "").asJava)
       case o =>
-        logger.info(s"offset is : ${o.toString}")
+        logger.info(s"Offset for $name is : ${o.toString}")
         Option(o.asInstanceOf[util.Map[String, Any]])
     }
   }
 
-  def connectPartition(): util.Map[String, String] = {
-    Map("partition" -> date).asJava
-  }
+  def connectPartition(): util.Map[String, String] = Map("partition" -> date)
 
   case class TennetXmlOffset(fileName: String, sequence: Int, day: String, hash: String) {
     override def toString() = s"(filename:${fileName}, sequence: ${sequence}, day: ${day}, hash: ${hash})"
