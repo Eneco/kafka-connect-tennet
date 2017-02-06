@@ -1,5 +1,5 @@
 IMAGE=eneco/kafka-connect-tennet
-TAG=$(git describe --exact-match)
+TAG=$(git describe --dirty)
 
 if [ "$TAG" ]; then
   docker login -u="$DOCKER_USER" -p="$DOCKER_PASS" && \
