@@ -15,12 +15,11 @@ class TennetSourceTask extends SourceTask with StrictLogging {
     logger.info("Stop")
   }
 
-
   override def start(props: util.Map[String, String]): Unit = {
     logger.info("start")
     val sourceConfig = new TennetSourceConfig(props)
     poller = Some(new TennetSourcePoller(sourceConfig, context.offsetStorageReader()))
-    logger.info("start")
+    logger.info("started")
   }
 
   override def version(): String = "1.0.0"

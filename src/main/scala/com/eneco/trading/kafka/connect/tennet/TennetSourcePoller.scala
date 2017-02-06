@@ -11,11 +11,7 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
   val interval  = cfg.getLong("interval")
   def poll(): Seq[SourceRecord] = {
     Thread.sleep(interval)
-    logger.info("poll")
-    TennetSourceRecordProducer(offsetStorageReader).produce(topic)
+    logger.info("onPoll")
+    TennetSourceRecordProducer(offsetStorageReader).produce(topic,url)
    }
 }
-
-
-
-
