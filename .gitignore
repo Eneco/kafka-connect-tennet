@@ -25,3 +25,8 @@ project/plugins/project/
 /.idea/
 /build/
 /.gradle/
+/out
+
+KafkaConnector.iml
+KafkaConnector.ipr
+KafkaConnector.iws
