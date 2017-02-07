@@ -12,18 +12,21 @@ import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.xml.NodeSeq
+import scalaj.http.{Http, HttpResponse}
 
 object TennetImbalanceXml {
   private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
 }
 
-case class TennetImbalanceXml(storageReader: OffsetStorageReader, body: String) extends StrictLogging {
-
-  private val hash = DigestUtils.sha256Hex(body)
+case class TennetImbalanceXml(storageReader: OffsetStorageReader, url: String) extends StrictLogging {
 
   //TODO fix day break
   private val date = new SimpleDateFormat("dd-MM-yyyy").format(new Date)
   private  val offset = getConnectOffset(date)
+  val imbalanceUrl = url.concat("balancedelta2017/balansdelta.xml")
+  val body =  (Http(imbalanceUrl).asString).body
+  private val hash = DigestUtils.sha256Hex(body)
+
 
   def fromBody(): Seq[ImbalanceRecord] = {
     val imbalance = scala.xml.XML.loadString(body)
@@ -81,11 +84,11 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader, body: String) 
         Option(o.asInstanceOf[util.Map[String, Any]])
     }
   }
-
+  //TODO?? replace partition with  "imbalance"?
   def connectPartition(): util.Map[String, String] = Map("partition" -> date)
 }
 
-abstract class Record
+
 
 case class ImbalanceRecord(
                             Number: Long,
