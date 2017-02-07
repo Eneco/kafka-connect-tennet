@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/Eneco/kafka-connect-tennet.svg?branch=master)](https://travis-ci.org/Eneco/kafka-connect-tennet)
+
 # kafka-connect-tennet
 ================
 
