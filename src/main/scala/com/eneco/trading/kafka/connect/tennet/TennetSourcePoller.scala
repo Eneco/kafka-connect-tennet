@@ -25,7 +25,11 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
     }
 
     val records = Try(TennetSourceRecordProducer(offsetStorageReader).produce(imbalanceTopic,url)) match {
-      case Success(s) => s
+      case Success(s) => {
+        backoff = backoff.nextSuccess
+        logger.info(s"Next poll will be around ${backoff.endTime}")
+        s
+      }
       case Failure(f) => {
         backoff = backoff.nextFailure()
         logger.error(s"Error trying to retrieve data. ${f.getMessage}")
@@ -33,7 +37,6 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
         List.empty[SourceRecord]
       }
     }
-    logger.info(s"Next poll will be around ${backoff.endTime}")
     records
   }
 }
