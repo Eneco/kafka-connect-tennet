@@ -9,7 +9,9 @@ import org.apache.kafka.connect.storage.OffsetStorageReader
 import scala.util.{Failure, Success, Try}
 
 class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetStorageReader) extends StrictLogging {
-  val topic = cfg.getString(TennetSourceConfig.TOPIC)
+  val imbalanceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
+  val bidLadderTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOPIC)
+  val settlementPriceTopic = cfg.getString(TennetSourceConfig.SETTLEMENT_PRICE_TOPIC)
   val url = cfg.getString(TennetSourceConfig.URL)
   val interval  = Duration.parse(cfg.getString(TennetSourceConfig.REFRESH_RATE))
   val maxBackOff = Duration.parse(cfg.getString(TennetSourceConfig.MAX_BACK_OFF))
@@ -22,11 +24,11 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
       return List[SourceRecord]()
     }
 
-    val records = Try(TennetSourceRecordProducer(offsetStorageReader).produce(topic,url)) match {
+    val records = Try(TennetSourceRecordProducer(offsetStorageReader).produce(imbalanceTopic,url)) match {
       case Success(s) => s
       case Failure(f) => {
         backoff = backoff.nextFailure()
-        logger.error(s"Error trying to retrieve IFR data. ${f.getMessage}")
+        logger.error(s"Error trying to retrieve data. ${f.getMessage}")
         logger.info(s"Backing off. Next poll will be around ${backoff.endTime}")
         List.empty[SourceRecord]
       }

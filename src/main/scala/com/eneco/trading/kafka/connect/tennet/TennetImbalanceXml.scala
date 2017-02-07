@@ -26,7 +26,6 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader, body: String) 
   private  val offset = getConnectOffset(date)
 
   def fromBody(): Seq[ImbalanceRecord] = {
-    logger.info(body)
     val imbalance = scala.xml.XML.loadString(body)
     (imbalance \\ "RECORD").map(record =>
       ImbalanceRecord(
@@ -48,7 +47,9 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader, body: String) 
     )
   }
 
-  def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
+  def NodeSeqToDouble(value: NodeSeq) : Option[Double] = {
+    if (!value.text.isEmpty) Some(value.text.toDouble) else None
+  }
 
 
   def filter(): Seq[ImbalanceRecord] = fromBody().filter(isProcessed(_)).sortBy(_.SequenceNumber)
