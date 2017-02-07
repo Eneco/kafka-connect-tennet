@@ -36,6 +36,7 @@ ext {
     confluentVersion = '3.0.1'
     scalajHttpVersion = "2.3.0"
     commonsCodecVersion = "1.10"
+    mockitoVersion = '1.10.19'
 }
 
 repositories {
@@ -65,6 +66,7 @@ dependencies {
     testCompile "org.scalacheck:scalacheck_$scalaMajorVersion:$scalaCheck"
     testCompile "org.scalatest:scalatest_$scalaMajorVersion:$scalaTest"
     testCompile "junit:junit:$junit"
+    testCompile "org.mockito:mockito-all:$mockitoVersion"
     
     testRuntime "org.pegdown:pegdown:1.6.0"
 
