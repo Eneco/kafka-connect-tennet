@@ -9,12 +9,12 @@ Reads the imbalance data (XML) form the tennet website and push it to Kafka
 
 | Name                     | Optional | Default | Description                                  |
 |--------------------------|----------|---------|----------------------------------------------|
-| tennet.imbalance.topic   | No       | -       | The topic to write imbalance data to.        |
-| tennet.setttlement.prices.topic | No       | -       | The topic to write settlement price data to. |
-| tennet.bidladder.topic   | No       | -       | The topic to write bid ladder data to.       |
+| tennet.imbalance.topic   | No       | - | The topic to write imbalance data to.        |
+| tennet.setttlement.prices.topic | No | - | The topic to write settlement price data to. |
+| tennet.bidladder.topic   | No       | -  | The topic to write bid ladder data to.       |
 | tennet.url               | Yes      | http://www.tennet.org/xml/balancedeltaprices/balans-delta_2h.xml | Tennet endpoint.|
-| tennet.refresh           | Yes      | PT5M    | The poll frequency in ISO8601 format.        |
-| tennet.max.backoff       | Yes      | PT40M   | On failure, exponentially backoff to at most this ISO8601 duration. |
+| tennet.refresh           | Yes      | PT5M | The poll frequency in ISO8601 format.        |
+| tennet.max.backoff       | Yes      | PT40M | On failure, exponentially backoff to at most this ISO8601 duration. |
 
 
 ## Adding the Connector to the Classpath

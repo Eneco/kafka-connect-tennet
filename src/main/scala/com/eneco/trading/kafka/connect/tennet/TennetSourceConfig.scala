@@ -13,10 +13,10 @@ object TennetSourceConfig {
   val IMBALANCE_TOPIC = "tennet.imbalance.topic"
   val IMBALANCE_TOPIC_DOC = "The topic to write imbalance tennet data to."
 
-  val SETTLEMENT_PRICE_TOPIC = "tennet.imbalance.topic"
+  val SETTLEMENT_PRICE_TOPIC = "tennet.settlement.prices.topic"
   val SETTLEMENT_PRICE_TOPIC_DOC = "The topic to write settlement price tennet data to."
 
-  val BID_LADDER_TOPIC = "tennet.bidladder.topic"
+  val BID_LADDER_TOPIC = "tennet.bid.ladder.topic"
   val BID_LADDER_DOC = "The topic to write bid ladder tennet data to."
 
   val URL = "tennet.url"
