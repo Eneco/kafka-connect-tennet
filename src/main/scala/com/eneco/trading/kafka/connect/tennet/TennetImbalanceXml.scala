@@ -13,40 +13,17 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 import scala.xml.NodeSeq
 
-object TennetXml {
+object TennetImbalanceXml {
   private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
 }
 
-case class TennetXml(storageReader: OffsetStorageReader, body: String) extends StrictLogging {
+case class TennetImbalanceXml(storageReader: OffsetStorageReader, body: String) extends StrictLogging {
 
   private val hash = DigestUtils.sha256Hex(body)
 
   //TODO fix day break
   private val date = new SimpleDateFormat("dd-MM-yyyy").format(new Date)
   private  val offset = getConnectOffset(date)
-
-  def dummyFromBody(): Seq[ImbalanceRecord] = {
-    val imbalance = scala.xml.XML.loadString(body)
-
-    (imbalance \\ "RECORD").map(record =>
-      ImbalanceRecord(
-        (record \ "NUMBER").text.toInt,
-        (record \ "SEQUENCE_NUMBER").text.toInt,
-        (record \ "TIME").text,
-        (record \ "IGCCCONTRIBUTION_UP").text.toDouble,
-        (record \ "IGCCCONTRIBUTION_DOWN").text.toDouble,
-        (record \ "UPWARD_DISPATCH").text.toDouble,
-        (record \ "DOWNWARD_DISPATCH").text.toDouble,
-        (record \ "RESERVE_UPWARD_DISPATCH").text.toDouble,
-        (record \ "RESERVE_DOWNWARD_DISPATCH").text.toDouble,
-        (record \ "INCIDENT_RESERVE_UP_INDICATOR").text.toString,
-        (record \ "INCIDENT_RESERVE_DOWN_INDICATOR").text.toString,
-        (record \ "MIN_PRICE").text.toDouble,
-        (record \ "MID_PRICE").text.toDouble,
-        (record \ "MAX_PRICE").text.toDouble
-      )
-    )
-  }
 
   def fromBody(): Seq[ImbalanceRecord] = {
     logger.info(body)
@@ -86,11 +63,11 @@ case class TennetXml(storageReader: OffsetStorageReader, body: String) extends S
     val offset = Map("sequence" -> record.SequenceNumber,
       "hash" -> hash
     ).asJava
-    TennetXml.offsetCache.put(date,offset)
+    TennetImbalanceXml.offsetCache.put(date,offset)
     offset
   }
 
-  def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
+  def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetImbalanceXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
 
   def getOffsetFromStorage(name: String): Option[util.Map[String, Any]] = {
     logger.info(s"Recovering offset for $name")
@@ -105,11 +82,6 @@ case class TennetXml(storageReader: OffsetStorageReader, body: String) extends S
   }
 
   def connectPartition(): util.Map[String, String] = Map("partition" -> date)
-
-  case class TennetXmlOffset(fileName: String, sequence: Int, day: String, hash: String) {
-    override def toString() = s"(filename:${fileName}, sequence: ${sequence}, day: ${day}, hash: ${hash})"
-  }
-
 }
 
 abstract class Record
@@ -130,7 +102,4 @@ case class ImbalanceRecord(
                             MidPrice: Double,
                             MaxPrice: Double
                           ) extends Record
-
-
-
 
