@@ -34,7 +34,7 @@ connector.class = com.eneco.trading.kafka.connect.tennet.TennetSourceConnector
 tasks.max = 1
 name = tennet
 tennet.imbalance.topic = imbalance
-tennet.setttlement.topic = settlement_prices
+tennet.setttlement.prices.topic = settlement_prices
 tennet.bidladder.topic = bid_ladder
 ```
 
