@@ -7,7 +7,7 @@ package com.eneco.trading.kafka.connect.tennet
 import java.time.{Duration, Instant}
 
 class ExponentialBackOff(step: Duration, cap: Duration, iteration: Int = 0, now: () => Instant = Instant.now) {
-  val endTime = now().plus(exponentialInterval(iteration))
+  val endTime: Instant = now().plus(exponentialInterval(iteration))
 
   def remaining: Duration = Duration.between(now(), endTime)
 

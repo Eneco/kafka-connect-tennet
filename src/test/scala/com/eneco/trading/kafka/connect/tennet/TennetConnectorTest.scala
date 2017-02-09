@@ -1,43 +1,61 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.util
-import java.util.Collections
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.time.{Duration, LocalDate}
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.apache.kafka.connect.source.SourceTaskContext
-import org.apache.kafka.connect.storage.OffsetStorageReader
+import org.apache.kafka.connect.errors.ConnectException
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
-import scala.xml.NodeSeq
+import scala.collection.JavaConverters._
+import scala.util.{Failure, Try}
 import scalaj.http._
 
-import scala.collection.JavaConverters._
-import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
-
-class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with MockitoSugar {
+class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging {
   test("testing get xml") {
-
-    val partition: util.Map[String, String] = Collections.singletonMap("", "")
-    //as a list to search for
-    val partitionList: util.List[util.Map[String, String]] = List(partition).asJava
-    //set up the offset
-    val offset: util.Map[String, Object] = Collections.singletonMap("", "")
-    //create offsets to initialize from
-    val offsets :util.Map[util.Map[String, String],util.Map[String, Object]] = Map(partition -> offset).asJava
-
-    //mock out reader and task context
-    val taskContext = mock[SourceTaskContext]
-    val reader = mock[OffsetStorageReader]
-    when(reader.offsets(partitionList)).thenReturn(offsets)
-    when(taskContext.offsetStorageReader()).thenReturn(reader)
-
     val response: HttpResponse[String] = Http("http://www.tennet.org/xml/balancedeltaprices/balans-delta_2h.xml").asString
-    val x = TennetXml(taskContext.offsetStorageReader(), response.body)
-    val records: Seq[ImbalanceRecord] = x.fromBody()
-    (records.size > 0) shouldBe true
+    //println(response.body)
+    val imbalance = scala.xml.XML.loadString(response.body)
+    println("doing something")
+    (imbalance \\ "RECORD").foreach { record =>
+    }
+    println("next")
+
   }
- }
+  test ("parse config") {
+    println("parsing config: ")
+    val props = Map (
+      "connector.class" -> "com.eneco.trading.kafka.connect.tennet.TennetSourceConnector",
+      "url" -> "http://www.tennet.org/xml/",
+      "tasks.max" -> "1",
+      "interval"-> "10000",
+      "tennet.balance.delta.topic"-> "tennet_imbalancedelta",
+      "tennet.imbalance.topic" -> "tennet_settlementprice",
+      "tennet.bid.ladder.topic" -> "tennet_bidladder",
+      "tennet.bid.ladder.total.topic" -> "tennet_bidladdertotal"
+    )
+    println(props.asJava.toString())
+    val sourceConfig = new TennetSourceConfig(props.asJava)
+  }
+
+  test ("initiate backoff") {
+    println("Start Tennet Connector with: ")
+    val interval  = Duration.parse("PT10S")
+    val maxBackOff = Duration.parse("PT40M")
+    var backoff = new ExponentialBackOff(interval, maxBackOff)
+    println(backoff.endTime)
+
+  }
+
+  test ("intraday") {
+    println(DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now))
+
+    //val date = new SimpleDateFormat("yyyyMMdd").format(LocalDate.now())
+
+  }
+
+}
 
 
 
