@@ -58,7 +58,7 @@ case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, url: Stri
   def filter(): Seq[ImbalancePriceRecord] = fromBody().filter(isProcessed(_)).sortBy(_.PTU)
 
   def isProcessed(record: ImbalancePriceRecord) : Boolean = {
-    hash.equals(offset.get.get("hash"))
+    !hash.equals(offset.get.get("hash"))
   }
 
   def connectOffsetFromRecord(record: ImbalancePriceRecord): util.Map[String, Any] = {

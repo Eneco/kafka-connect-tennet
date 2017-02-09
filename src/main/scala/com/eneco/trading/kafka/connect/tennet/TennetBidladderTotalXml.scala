@@ -1,6 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDate}
 import java.util
 
@@ -22,8 +23,8 @@ case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, url: Stri
 
 
   //TODO fix day break
-  private val date =if (isIntraday) { new SimpleDateFormat("yyyyMMdd").format(LocalDate.now()) }
-  else { new SimpleDateFormat("yyyyMMdd").format(LocalDate.now().plusDays(1)) }
+  private val date =if (isIntraday) { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now) }
+  else { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))  }
 
   private  val offset = getConnectOffset(date)
   private val generatedAt = Instant.now.toEpochMilli
@@ -57,7 +58,7 @@ case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, url: Stri
   def filter(): Seq[BidLadderTotalRecord] = fromBody().filter(isProcessed(_)).sortBy(_.PTU)
 
   def isProcessed(record: BidLadderTotalRecord) : Boolean = {
-    hash.equals(offset.get.get("hash"))
+    !hash.equals(offset.get.get("hash"))
   }
 
   def connectOffsetFromRecord(record: BidLadderTotalRecord): util.Map[String, Any] = {

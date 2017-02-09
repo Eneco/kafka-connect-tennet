@@ -9,12 +9,12 @@ import org.apache.kafka.connect.storage.OffsetStorageReader
 import scala.util.{Failure, Success, Try}
 
 class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetStorageReader) extends StrictLogging {
-  private val imbalanceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
+  private val imbalanceBalanceTopic = cfg.getString(TennetSourceConfig.BALANCE_DELTA_TOPIC)
   private val bidLadderTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOPIC)
   private val bidLaddertotalTopic = "TODO"
-  private val settlementPriceTopic = cfg.getString(TennetSourceConfig.SETTLEMENT_PRICE_TOPIC)
+  private val settlementPriceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
   private val url = cfg.getString(TennetSourceConfig.URL)
-  private val interval  = Duration.parse(cfg.getString(TennetSourceConfig.REFRESH_RATE))
+  private val interval = Duration.parse(cfg.getString(TennetSourceConfig.REFRESH_RATE))
   private val maxBackOff = Duration.parse(cfg.getString(TennetSourceConfig.MAX_BACK_OFF))
   var backoff = new ExponentialBackOff(interval, maxBackOff)
 
@@ -24,9 +24,7 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
       return List[SourceRecord]()
     }
 
-    //FIXME try catch block
-    val records = Try(
-      TennetSourceRecordProducer(offsetStorageReader).produce("imbalance",imbalanceTopic,url)) match {
+    val records = Try(getRecords) match {
       case Success(s) => s
       case Failure(f) =>
         backoff = backoff.nextFailure()
@@ -34,14 +32,15 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
         logger.info(s"Backing off. Next poll will be around ${backoff.endTime}")
         List.empty[SourceRecord]
     }
-
-    //records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladder",bidLadderTopic,url))
-    //records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal",bidLaddertotalTopic,url))
-    //records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice",settlementPriceTopic,url))
-
     backoff = backoff.nextSuccess()
     logger.info(s"Next poll will be around ${backoff.endTime}")
-
     records
+  }
+
+  def getRecords: Seq[SourceRecord] = {
+    val records = TennetSourceRecordProducer(offsetStorageReader).produce("imbalance", imbalanceBalanceTopic, url)
+    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladder", bidLadderTopic, url)
+    //records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal", bidLaddertotalTopic, url)
+    //records ++ TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice", settlementPriceTopic, url)
   }
 }

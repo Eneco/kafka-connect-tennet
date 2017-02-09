@@ -73,6 +73,8 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
         )
     }
   }
+}
+
 
   object ImbalanceSourceRecord {
     def struct(record: ImbalanceRecord) =
@@ -179,7 +181,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("rampup_60_240", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("rampup_240_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("rampup_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
-      .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
+      .field("generated_at", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .build()
   }
 
@@ -214,5 +216,3 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("regulation_state", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .build()
   }
-
-}
