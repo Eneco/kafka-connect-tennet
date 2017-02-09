@@ -12,32 +12,48 @@ import scala.xml.NodeSeq
 import scalaj.http._
 
 import scala.collection.JavaConverters._
-import org.mockito.Mockito._
 import org.scalatest.mock.MockitoSugar
 
 class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with MockitoSugar {
   test("testing get xml") {
-
-    val partition: util.Map[String, String] = Collections.singletonMap("", "")
-    //as a list to search for
-    val partitionList: util.List[util.Map[String, String]] = List(partition).asJava
-    //set up the offset
-    val offset: util.Map[String, Object] = Collections.singletonMap("", "")
-    //create offsets to initialize from
-    val offsets :util.Map[util.Map[String, String],util.Map[String, Object]] = Map(partition -> offset).asJava
-
-    //mock out reader and task context
-    val taskContext = mock[SourceTaskContext]
-    val reader = mock[OffsetStorageReader]
-    when(reader.offsets(partitionList)).thenReturn(offsets)
-    when(taskContext.offsetStorageReader()).thenReturn(reader)
-
     val response: HttpResponse[String] = Http("http://www.tennet.org/xml/balancedeltaprices/balans-delta_2h.xml").asString
-    val x = TennetXml(taskContext.offsetStorageReader(), response.body)
-    val records: Seq[ImbalanceRecord] = x.fromBody()
-    (records.size > 0) shouldBe true
+    //println(response.body)
+    val imbalance = scala.xml.XML.loadString(response.body)
+    println("doing something")
+    (imbalance \\ "RECORD").foreach { record =>
+      println("   record is")
+      println(record \ "SEQUENCE_NUMBER")
+      println((record \ "NUMBER").text.toInt)
+      println((record \ "SEQUENCE_NUMBER").text.toInt)
+      println((record \ "TIME").text)
+      println((record \ "UPWARD_DISPATCH").text.toDouble)
+      println((record \ "DOWNWARD_DISPATCH").text.toDouble)
+      println((record \ "RESERVE_UPWARD_DISPATCH").text.toDouble)
+      println((record \ "RESERVE_DOWNWARD_DISPATCH").text.toDouble)
+      println((record \ "EMERGENCY_POWER").text.toDouble)
+    }
+    println("next")
+    //val results = TennetSourceRecordProducer().produce{"test"}
+    //results.map (r =>println(r))
+  }
+  test ("parse config") {
+    println("Start Tennet Connector with: ")
+
+    val props = Map (
+      "connector.class" -> "com.eneco.trading.kafka.connect.tennet.TennetSourceConnector",
+      "url" -> "http://www.tennet.org/xml/",
+      "tasks.max" -> "1",
+      "interval"-> "10000",
+      "tennet.imbalance.topic"-> "tennet_imbalance",
+      "tennet.settlement.prices.topic" -> "tennet_settlementprice",
+      "tennet.bidladder.topic" -> "tennet_bidladder"
+    )
+    println(props.asJava.toString())
+    val sourceConfig = new TennetSourceConfig(props.asJava)
+    println(sourceConfig.toString)
   }
  }
+//
 
 
 
