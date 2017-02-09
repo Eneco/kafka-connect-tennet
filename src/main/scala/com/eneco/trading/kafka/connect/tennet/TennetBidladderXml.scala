@@ -23,8 +23,8 @@ case class TennetBidladderXml(storageReader: OffsetStorageReader, url: String, i
 
 
   //TODO fix day break
-  private val date =if (isIntraday) { new SimpleDateFormat("yyyyMMdd").format(LocalDate.now()) }
-      else { new SimpleDateFormat("yyyyMMdd").format(LocalDate.now().plusDays(1)) }
+  private val date =if (isIntraday) { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now) }
+      else { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))  }
 
 
   private val offset = getConnectOffset(date)
@@ -43,17 +43,18 @@ case class TennetBidladderXml(storageReader: OffsetStorageReader, url: String, i
         (record \ "PTU").text.toInt,
         (record \ "PERIOD_FROM").text.toString,
         (record \ "PERIOD_UNTIL").text.toString,
-        (record \ "TOTAL_RAMPDOWN_REQUIRED").text.toDouble,
-        (record \ "RAMPDOWN_REQUIRED").text.toDouble,
-        (record \ "RAMPDOWN_RESERVE").text.toDouble,
-        (record \ "RAMPDOWN_POWER").text.toDouble,
-        (record \ "RAMPUP_POWER").text.toDouble,
-        (record \ "RAMPUP_RESERVE").text.toDouble,
-        (record \ "RAMPUP_REQUIRED").text.toDouble,
-        (record \ "TOTAL_RAMPUP_REQUIRED").text.toDouble,
+        NodeSeqToDouble(record \ "TOTAL_RAMPDOWN_REQUIRED").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPDOWN_REQUIRED").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPDOWN_RESERVE").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPDOWN_POWER").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPUP_POWER").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPUP_RESERVE").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPUP_REQUIRED").getOrElse(0),
+        NodeSeqToDouble(record \ "TOTAL_RAMPUP_REQUIRED").getOrElse(0),
         generatedAt
       ))
   }
+
 
   def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
 
@@ -62,7 +63,7 @@ case class TennetBidladderXml(storageReader: OffsetStorageReader, url: String, i
 
 
   def isProcessed(record: BidLadderRecord) : Boolean = {
-    hash.equals(offset.get.get("hash"))
+    !hash.equals(offset.get.get("hash"))
   }
 
   def connectOffsetFromRecord(record: BidLadderRecord): util.Map[String, Any] = {

@@ -1,6 +1,8 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.time.Duration
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.time.{Duration, LocalDate}
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.kafka.connect.errors.ConnectException
@@ -17,16 +19,6 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
     val imbalance = scala.xml.XML.loadString(response.body)
     println("doing something")
     (imbalance \\ "RECORD").foreach { record =>
-//      println("   record is")
-//      println(record \ "SEQUENCE_NUMBER")
-//      println((record \ "NUMBER").text.toInt)
-//      println((record \ "SEQUENCE_NUMBER").text.toInt)
-//      println((record \ "TIME").text)
-//      println((record \ "UPWARD_DISPATCH").text.toDouble)
-//      println((record \ "DOWNWARD_DISPATCH").text.toDouble)
-//      println((record \ "RESERVE_UPWARD_DISPATCH").text.toDouble)
-//      println((record \ "RESERVE_DOWNWARD_DISPATCH").text.toDouble)
-//      println((record \ "EMERGENCY_POWER").text.toDouble)
     }
     println("next")
 
@@ -38,9 +30,10 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
       "url" -> "http://www.tennet.org/xml/",
       "tasks.max" -> "1",
       "interval"-> "10000",
-      "tennet.imbalance.topic"-> "tennet_imbalance",
-      "tennet.settlement.prices.topic" -> "tennet_settlementprice",
-      "tennet.bidladder.topic" -> "tennet_bidladder"
+      "tennet.balance.delta.topic"-> "tennet_imbalancedelta",
+      "tennet.imbalance.topic" -> "tennet_settlementprice",
+      "tennet.bid.ladder.topic" -> "tennet_bidladder",
+      "tennet.bid.ladder.total.topic" -> "tennet_bidladdertotal"
     )
     println(props.asJava.toString())
     val sourceConfig = new TennetSourceConfig(props.asJava)
@@ -52,6 +45,13 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
     val maxBackOff = Duration.parse("PT40M")
     var backoff = new ExponentialBackOff(interval, maxBackOff)
     println(backoff.endTime)
+
+  }
+
+  test ("intraday") {
+    println(DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now))
+
+    //val date = new SimpleDateFormat("yyyyMMdd").format(LocalDate.now())
 
   }
 
