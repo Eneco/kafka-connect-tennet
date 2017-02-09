@@ -16,12 +16,12 @@ object TennetSourceConfig {
   val SETTLEMENT_PRICE_TOPIC = "tennet.settlement.prices.topic"
   val SETTLEMENT_PRICE_TOPIC_DOC = "The topic to write settlement price tennet data to."
 
-  val BID_LADDER_TOPIC = "tennet.bid.ladder.topic"
+  val BID_LADDER_TOPIC = "tennet.bidladder.topic"
   val BID_LADDER_DOC = "The topic to write bid ladder tennet data to."
 
   val URL = "tennet.url"
-  val URL_DOC = "Tennet imbalance endpoint"
-  val URL_DEFAULT = "http://www.tennet.org/xml/balancedeltaprices/balans-delta_2h.xml"
+  val URL_DOC = "Tennet endpoint"
+  val URL_DEFAULT = "http://www.tennet.org/xml/"
 
   val REFRESH_RATE = "tennet.refresh"
   val REFRESH_RATE_DEFAULT = "PT5M"
@@ -33,7 +33,7 @@ object TennetSourceConfig {
 
 
   val config: ConfigDef = new ConfigDef()
-    .define(IMBALANCE_TOPIC, Type.STRING,Importance.HIGH, IMBALANCE_TOPIC_DOC)
+    .define(IMBALANCE_TOPIC, Type.STRING, Importance.HIGH, IMBALANCE_TOPIC_DOC)
     .define(SETTLEMENT_PRICE_TOPIC, Type.STRING,Importance.HIGH, SETTLEMENT_PRICE_TOPIC_DOC)
     .define(BID_LADDER_TOPIC, Type.STRING,Importance.HIGH, BID_LADDER_DOC)
     .define(URL, Type.STRING, URL_DEFAULT, Importance.HIGH, URL_DOC)

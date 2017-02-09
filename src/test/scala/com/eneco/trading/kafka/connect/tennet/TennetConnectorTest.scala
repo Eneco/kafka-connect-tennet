@@ -1,8 +1,11 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
+import org.apache.kafka.connect.errors.ConnectException
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import scala.collection.JavaConverters._
 
+import scala.util.{Failure, Try}
 import scalaj.http._
 
 class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging {
@@ -12,23 +15,37 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
     val imbalance = scala.xml.XML.loadString(response.body)
     println("doing something")
     (imbalance \\ "RECORD").foreach { record =>
-      println("   record is")
-      println(record \ "SEQUENCE_NUMBER")
-      println((record \ "NUMBER").text.toInt)
-      println((record \ "SEQUENCE_NUMBER").text.toInt)
-      println((record \ "TIME").text)
-      println((record \ "UPWARD_DISPATCH").text.toDouble)
-      println((record \ "DOWNWARD_DISPATCH").text.toDouble)
-      println((record \ "RESERVE_UPWARD_DISPATCH").text.toDouble)
-      println((record \ "RESERVE_DOWNWARD_DISPATCH").text.toDouble)
-      println((record \ "EMERGENCY_POWER").text.toDouble)
+//      println("   record is")
+//      println(record \ "SEQUENCE_NUMBER")
+//      println((record \ "NUMBER").text.toInt)
+//      println((record \ "SEQUENCE_NUMBER").text.toInt)
+//      println((record \ "TIME").text)
+//      println((record \ "UPWARD_DISPATCH").text.toDouble)
+//      println((record \ "DOWNWARD_DISPATCH").text.toDouble)
+//      println((record \ "RESERVE_UPWARD_DISPATCH").text.toDouble)
+//      println((record \ "RESERVE_DOWNWARD_DISPATCH").text.toDouble)
+//      println((record \ "EMERGENCY_POWER").text.toDouble)
     }
     println("next")
-    //val results = TennetSourceRecordProducer().produce{"test"}
-    //results.map (r =>println(r))
+
+  }
+  test ("parse config") {
+    println("Start Tennet Connector with: ")
+
+    val props = Map (
+      "connector.class" -> "com.eneco.trading.kafka.connect.tennet.TennetSourceConnector",
+      "url" -> "http://www.tennet.org/xml/",
+      "tasks.max" -> "1",
+      "interval"-> "10000",
+      "tennet.imbalance.topic"-> "tennet_imbalance",
+      "tennet.settlement.prices.topic" -> "tennet_settlementprice",
+      "tennet.bidladder.topic" -> "tennet_bidladder"
+    )
+    println(props.asJava.toString())
+    val sourceConfig = new TennetSourceConfig(props.asJava)
+    println(sourceConfig.toString)
   }
  }
-//
 
 
 

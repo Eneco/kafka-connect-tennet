@@ -37,7 +37,7 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
     }
 
     records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladder",bidLadderTopic,url))
-    records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal",bidLaddertotalTopic,url))
+    //records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal",bidLaddertotalTopic,url))
     records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice",settlementPriceTopic,url))
 
     logger.info(s"Next poll will be around ${backoff.endTime}")
