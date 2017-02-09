@@ -19,7 +19,6 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
   var backoff = new ExponentialBackOff(interval, maxBackOff)
 
   def poll(): Seq[SourceRecord] = {
-    Thread.sleep(interval.getSeconds * 1000)
 
     if (!backoff.passed) {
       return List[SourceRecord]()
@@ -36,11 +35,13 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
         List.empty[SourceRecord]
     }
 
-    records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladder",bidLadderTopic,url))
+    //records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladder",bidLadderTopic,url))
     //records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal",bidLaddertotalTopic,url))
-    records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice",settlementPriceTopic,url))
+    //records :+ Try(TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice",settlementPriceTopic,url))
 
+    backoff = backoff.nextSuccess()
     logger.info(s"Next poll will be around ${backoff.endTime}")
+
     records
   }
 }

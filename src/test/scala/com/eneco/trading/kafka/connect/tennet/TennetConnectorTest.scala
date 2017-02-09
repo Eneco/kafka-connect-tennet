@@ -1,10 +1,12 @@
 package com.eneco.trading.kafka.connect.tennet
 
+import java.time.Duration
+
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.kafka.connect.errors.ConnectException
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
-import scala.collection.JavaConverters._
 
+import scala.collection.JavaConverters._
 import scala.util.{Failure, Try}
 import scalaj.http._
 
@@ -30,8 +32,7 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
 
   }
   test ("parse config") {
-    println("Start Tennet Connector with: ")
-
+    println("parsing config: ")
     val props = Map (
       "connector.class" -> "com.eneco.trading.kafka.connect.tennet.TennetSourceConnector",
       "url" -> "http://www.tennet.org/xml/",
@@ -43,9 +44,18 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
     )
     println(props.asJava.toString())
     val sourceConfig = new TennetSourceConfig(props.asJava)
-    println(sourceConfig.toString)
   }
- }
+
+  test ("initiate backoff") {
+    println("Start Tennet Connector with: ")
+    val interval  = Duration.parse("PT10S")
+    val maxBackOff = Duration.parse("PT40M")
+    var backoff = new ExponentialBackOff(interval, maxBackOff)
+    println(backoff.endTime)
+
+  }
+
+}
 
 
 

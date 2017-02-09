@@ -24,11 +24,11 @@ object TennetSourceConfig {
   val URL_DEFAULT = "http://www.tennet.org/xml/"
 
   val REFRESH_RATE = "tennet.refresh"
-  val REFRESH_RATE_DEFAULT = "PT5M"
+  val REFRESH_RATE_DEFAULT = "PT1M"
   val REFRESH_RATE_DOC = "How often the ftp server is polled; ISO8601 duration"
 
   val MAX_BACK_OFF = "tennet.max.backoff"
-  val MAX_BACK_OFF_DEFAULT = "PT40M"
+  val MAX_BACK_OFF_DEFAULT = "PT15M"
   val MAX_BACK_OFF_DOC = "On failure, exponentially backoff to at most this ISO8601 duration"
 
 

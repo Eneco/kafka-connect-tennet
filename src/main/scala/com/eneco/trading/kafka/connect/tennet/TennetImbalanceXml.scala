@@ -1,6 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util
 import java.util.Date
 
@@ -23,7 +24,8 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader, url: String) e
   //TODO fix day break
   private val date = new SimpleDateFormat("dd-MM-yyyy").format(new Date)
   private  val offset = getConnectOffset(date)
-  val imbalanceUrl = url.concat("balancedelta2017/balansdelta.xml")
+  private val generatedAt = Instant.now.toEpochMilli
+  val imbalanceUrl = url.concat("balancedelta2017/balans-delta.xml")
   val body =  (Http(imbalanceUrl).asString).body
   private val hash = DigestUtils.sha256Hex(body)
 
@@ -45,7 +47,8 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader, url: String) e
         (record \ "INCIDENT_RESERVE_DOWN_INDICATOR").text.toString,
         NodeSeqToDouble(record \ "MIN_PRICE").getOrElse(0),
         NodeSeqToDouble(record \ "MID_PRICE").getOrElse(0),
-        NodeSeqToDouble(record \ "MAX_PRICE").getOrElse(0)
+        NodeSeqToDouble(record \ "MAX_PRICE").getOrElse(0),
+        generatedAt
       )
     )
   }
@@ -104,6 +107,7 @@ case class ImbalanceRecord(
                             IncidentReserveDownIndicator : String,
                             MinPrice: Double,
                             MidPrice: Double,
-                            MaxPrice: Double
+                            MaxPrice: Double,
+                            GeneratedAt: Long
                           ) extends Record
 
