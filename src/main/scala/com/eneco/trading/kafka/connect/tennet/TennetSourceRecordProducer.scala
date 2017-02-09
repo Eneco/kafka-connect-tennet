@@ -93,6 +93,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
         .put("min_price", record.MinPrice)
         .put("mid_price", record.MidPrice)
         .put("max_price", record.MaxPrice)
+        .put("generated_at",record.GeneratedAt)
 
 
     val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalance")
@@ -110,6 +111,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("min_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("mid_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("max_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
+      .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
       .build()
   }
 
@@ -144,7 +146,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("rampup_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("rampup_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("total_rampup_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
-      .field("generated_at", Schema.OPTIONAL_FLOAT64_SCHEMA)
+      .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
       .build()
   }
 
@@ -177,7 +179,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("rampup_60_240", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("rampup_240_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("rampup_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
-      .field("generated_at", Schema.OPTIONAL_FLOAT64_SCHEMA)
+      .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
       .build()
   }
 
