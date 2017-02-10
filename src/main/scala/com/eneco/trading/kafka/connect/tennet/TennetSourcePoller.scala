@@ -20,23 +20,27 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
 
   def poll(): Seq[SourceRecord] = {
 
-    if (!backoff.passed) {
-      return List[SourceRecord]()
-    }
+    if (backoff.passed) {
 
-    val records = Try(getRecords) match {
-      case Success(recs) =>
-        backoff = backoff.nextSuccess()
-        logger.info(s"Next poll will be around ${backoff.endTime}")
-        recs
-      case Failure(f) =>
-        backoff = backoff.nextFailure()
-        logger.error(s"Error trying to retrieve data. ${f.getMessage}")
-        logger.info(s"Backing off. Next poll will be around ${backoff.endTime}")
-        List.empty[SourceRecord]
 
+      val records = Try(getRecords) match {
+        case Success(recs) =>
+          backoff = backoff.nextSuccess()
+          logger.info(s"Next poll will be around ${backoff.endTime}")
+          recs
+        case Failure(f) =>
+          backoff = backoff.nextFailure()
+          logger.error(s"Error trying to retrieve data. ${f.getMessage}")
+          logger.info(s"Backing off. Next poll will be around ${backoff.endTime}")
+          List.empty[SourceRecord]
+
+      }
+      records
     }
-    records
+    else {
+      Thread.sleep(1000)
+      List.empty[SourceRecord]
+    }
   }
 
 

@@ -42,11 +42,10 @@ class TennetSourceTask extends SourceTask with StrictLogging {
     records.foreach(r => counter.put(r.topic() , counter.getOrElse(r.topic(), 0L) + 1L))
 
     val newTimestamp = System.currentTimeMillis()
-    if (counter.nonEmpty && scala.concurrent.duration.SECONDS.toSeconds(newTimestamp - timestamp) >= 60) {
+    if (counter.nonEmpty && scala.concurrent.duration.SECONDS.toSeconds(newTimestamp - timestamp) >= 60000) {
       logCounts()
+      timestamp = newTimestamp
     }
-    timestamp = newTimestamp
-
     records
   }
 }
