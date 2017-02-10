@@ -11,10 +11,10 @@ class TennetSourceConfig(props: util.Map[String, String]) extends AbstractConfig
 object TennetSourceConfig {
 
   val BALANCE_DELTA_TOPIC = "tennet.balance.delta.topic"
-  val BALANCE_DELTA_TOPIC_DOC = "The topic to write imbalance tennet data to."
+  val BALANCE_DELTA_TOPIC_DOC = "The topic to write imbalance deltas tennet data to."
 
   val IMBALANCE_TOPIC = "tennet.imbalance.topic"
-  val IMBALANCE_TOPIC_DOC = "The topic to write settlement price tennet data to."
+  val IMBALANCE_TOPIC_DOC = "The topic to write imbalance settlement price tennet data to."
 
   val BID_LADDER_TOPIC = "tennet.bid.ladder.topic"
   val BID_LADDER_DOC = "The topic to write bid ladder tennet data to."

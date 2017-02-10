@@ -11,7 +11,7 @@ import scala.util.{Failure, Success, Try}
 class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetStorageReader) extends StrictLogging {
   private val imbalanceBalanceTopic = cfg.getString(TennetSourceConfig.BALANCE_DELTA_TOPIC)
   private val bidLadderTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOPIC)
-  private val bidLaddertotalTopic = "TODO"
+  private val bidLaddertotalTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOTAL_TOPIC)
   private val settlementPriceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
   private val url = cfg.getString(TennetSourceConfig.URL)
   private val interval = Duration.parse(cfg.getString(TennetSourceConfig.REFRESH_RATE))
@@ -25,22 +25,25 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
     }
 
     val records = Try(getRecords) match {
-      case Success(s) => s
+      case Success(recs) =>
+        backoff = backoff.nextSuccess()
+        logger.info(s"Next poll will be around ${backoff.endTime}")
+        recs
       case Failure(f) =>
         backoff = backoff.nextFailure()
         logger.error(s"Error trying to retrieve data. ${f.getMessage}")
         logger.info(s"Backing off. Next poll will be around ${backoff.endTime}")
         List.empty[SourceRecord]
+
     }
-    backoff = backoff.nextSuccess()
-    logger.info(s"Next poll will be around ${backoff.endTime}")
     records
   }
 
+
   def getRecords: Seq[SourceRecord] = {
     val records = TennetSourceRecordProducer(offsetStorageReader).produce("imbalance", imbalanceBalanceTopic, url)
-    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladder", bidLadderTopic, url)
-    //records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal", bidLaddertotalTopic, url)
+    //records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladder", bidLadderTopic, url)
+    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal", bidLaddertotalTopic, url)
     //records ++ TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice", settlementPriceTopic, url)
   }
 }
