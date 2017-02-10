@@ -42,8 +42,8 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
 
   def getRecords: Seq[SourceRecord] = {
     val records = TennetSourceRecordProducer(offsetStorageReader).produce("imbalance", imbalanceBalanceTopic, url)
-    //records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladder", bidLadderTopic, url)
+    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladder", bidLadderTopic, url)
     records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal", bidLaddertotalTopic, url)
-    //records ++ TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice", settlementPriceTopic, url)
+    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice", settlementPriceTopic, url)
   }
 }
