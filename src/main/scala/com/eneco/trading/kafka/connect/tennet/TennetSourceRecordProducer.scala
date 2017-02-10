@@ -5,9 +5,9 @@ import org.apache.kafka.connect.data.{Schema, SchemaBuilder, Struct}
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.storage.OffsetStorageReader
 
-case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) extends StrictLogging {
+import scala.reflect.macros.whitebox
 
-    //var partition = "imbalanceprice"
+case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) extends StrictLogging {
 
   def produce(xmlType: String, topic: String, url: String): Seq[SourceRecord] = {
     xmlType match {
@@ -41,7 +41,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
             BidLadderSourceRecord.struct(r))
         )
 
-      case "bidladder_total" =>
+      case "bidladdertotal" =>
         val data = TennetBidladderTotalXml(offsetStorageReader, url, isIntraday = true)
         data.filter().map(r =>
           new SourceRecord(
@@ -71,6 +71,9 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
             ImbalancePriceSourceRecord.schema,
             ImbalancePriceSourceRecord.struct(r))
         )
+      case _ =>
+        logger.warn("Unknown type")
+        List.empty[SourceRecord]
     }
   }
 }
@@ -181,7 +184,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("rampup_60_240", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("rampup_240_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("rampup_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
-      .field("generated_at", Schema.OPTIONAL_FLOAT64_SCHEMA)
+      .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
       .build()
   }
 
@@ -200,6 +203,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
         .put("take_from_system", record.TakeFromSystem)
         .put("feed_into_system", record.FeedIntoSystem)
         .put("regulation_state", record.RegulationState)
+        .put("generated_at",record.GeneratedAt)
 
     val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalanceprice")
       .field("date", Schema.STRING_SCHEMA)
@@ -213,6 +217,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       .field("incentive_component", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("take_from_system", Schema.OPTIONAL_FLOAT64_SCHEMA)
       .field("feed_into_system", Schema.OPTIONAL_FLOAT64_SCHEMA)
-      .field("regulation_state", Schema.OPTIONAL_FLOAT64_SCHEMA)
+      .field("regulation_state", Schema.OPTIONAL_INT64_SCHEMA)
+      .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
       .build()
   }

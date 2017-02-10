@@ -42,15 +42,16 @@ case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, url: Stri
         (record \ "PTU").text.toInt,
         (record \ "PERIOD_FROM").text.toString,
         (record \ "PERIOD_UNTIL").text.toString,
-        (record \ "RAMPDOWN_60_").text.toDouble,
-        (record \ "RAMPDOWN_15_60").text.toDouble,
-        (record \ "RAMPDOWN_0_15").text.toDouble,
-        (record \ "RAMPUP_0_15").text.toDouble,
-        (record \ "RAMPUP_60_240").text.toDouble,
-        (record \ "RAMPUP_240_480").text.toDouble,
-        (record \ "RAMPUP_480_").text.toDouble,
+        NodeSeqToDouble(record \ "RAMPDOWN_60_").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPDOWN_15_60").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPDOWN_0_15").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPUP_0_15").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPUP_60_240").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPUP_240_480").getOrElse(0),
+        NodeSeqToDouble(record \ "RAMPUP_480_").getOrElse(0),
         generatedAt
-      ))
+      )
+    )
   }
 
   def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None

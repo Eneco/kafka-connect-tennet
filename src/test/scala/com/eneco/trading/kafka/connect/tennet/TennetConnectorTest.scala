@@ -13,16 +13,16 @@ import scala.util.{Failure, Try}
 import scalaj.http._
 
 class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging {
-  test("testing get xml") {
-    val response: HttpResponse[String] = Http("http://www.tennet.org/xml/balancedeltaprices/balans-delta_2h.xml").asString
-    //println(response.body)
-    val imbalance = scala.xml.XML.loadString(response.body)
-    println("doing something")
-    (imbalance \\ "RECORD").foreach { record =>
-    }
-    println("next")
-
-  }
+//  test("testing get xml") {
+//    val response: HttpResponse[String] = Http("http://www.tennet.org/xml/balancedeltaprices/balans-delta_2h.xml").asString
+//    //println(response.body)
+//    val imbalance = scala.xml.XML.loadString(response.body)
+//    println("doing something")
+//    (imbalance \\ "RECORD").foreach { record =>
+//    }
+//    println("next")
+//
+//  }
   test ("parse config") {
     println("parsing config: ")
     val props = Map (

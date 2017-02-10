@@ -1,6 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDate}
 import java.util
 
@@ -20,10 +21,8 @@ object TennetImbalancePriceXml {
 
 case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, url: String) extends StrictLogging {
 
-
   //TODO fix day break
-  private val date = new SimpleDateFormat("yyyyMMdd").format(LocalDate.now().plusDays(-1))
-
+  private val date = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(-1))
 
   private  val offset = getConnectOffset(date)
   private val generatedAt = Instant.now.toEpochMilli
@@ -41,14 +40,15 @@ case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, url: Stri
         (record \ "PTU").text.toInt,
         (record \ "PERIOD_FROM").text.toString,
         (record \ "PERIOD_UNTIL").text.toString,
-        (record \ "UPWARD_INCIDENT_RESERVE").text.toDouble,
-        (record \ "DOWNWARD_INCIDENT_RESERVE").text.toDouble,
-        (record \ "UPWARD_DISPATCH").text.toDouble,
-        (record \ "DOWNWARD_DISPATCH").text.toDouble,
-        (record \ "INCENTIVE_COMPONENT").text.toDouble,
-        (record \ "TAKE_FROM_SYSTEM").text.toDouble,
-        (record \ "FEED_INTO_SYSTEM").text.toDouble,
-        (record \ "REGULATION_STATE").text.toInt
+        NodeSeqToDouble(record \ "UPWARD_INCIDENT_RESERVE").getOrElse(0),
+        NodeSeqToDouble(record \ "DOWNWARD_INCIDENT_RESERVE").getOrElse(0),
+        NodeSeqToDouble(record \ "UPWARD_DISPATCH").getOrElse(0),
+        NodeSeqToDouble(record \ "DOWNWARD_DISPATCH").getOrElse(0),
+        NodeSeqToDouble(record \ "INCENTIVE_COMPONENT").getOrElse(0),
+        NodeSeqToDouble(record \ "TAKE_FROM_SYSTEM").getOrElse(0),
+        NodeSeqToDouble(record \ "FEED_INTO_SYSTEM").getOrElse(0),
+        (record \ "REGULATION_STATE").text.toInt,
+        generatedAt: Long
       ))
   }
 
@@ -98,6 +98,7 @@ case class ImbalancePriceRecord(
                             IncentiveComponent: Double,
                             TakeFromSystem:Double,
                             FeedIntoSystem: Double,
-                            RegulationState: Long
+                            RegulationState: Long,
+                            GeneratedAt : Long
                           ) extends Record
 
