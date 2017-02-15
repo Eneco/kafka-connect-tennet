@@ -22,44 +22,49 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
             ImbalanceSourceRecord.struct(r))
         )
       case "bidladder" =>
-        val data = TennetBidladderXml(offsetStorageReader, url, isIntraday = true)
-        data.filter().map(r =>
+        val dataIntraDay = TennetBidladderXml(offsetStorageReader, url, isIntraday = true)
+        val id = dataIntraDay.filter().map(r =>
           new SourceRecord(
-            data.connectPartition, //source partitions?
-            data.connectOffsetFromRecord(r),
+            dataIntraDay.connectPartition, //source partitions?
+            dataIntraDay.connectOffsetFromRecord(r),
             topic,
             BidLadderSourceRecord.schema,
             BidLadderSourceRecord.struct(r))
-        ) :+
-          TennetBidladderXml(offsetStorageReader, url, isIntraday = false)
-        data.filter().map(r =>
-          new SourceRecord(
-            data.connectPartition, //source partitions?
-            data.connectOffsetFromRecord(r),
-            topic,
-            BidLadderSourceRecord.schema,
-            BidLadderSourceRecord.struct(r))
+
         )
 
-      case "bidladdertotal" =>
-        val data = TennetBidladderTotalXml(offsetStorageReader, url, isIntraday = true)
-        data.filter().map(r =>
+        val dataDayAhead = TennetBidladderXml(offsetStorageReader, url, isIntraday = true)
+        val da= dataDayAhead.filter().map(r =>
           new SourceRecord(
-            data.connectPartition, //source partitions?
-            data.connectOffsetFromRecord(r),
+            dataDayAhead.connectPartition, //source partitions?
+            dataDayAhead.connectOffsetFromRecord(r),
             topic,
-            BidLadderTotalSourceRecord.schema,
-            BidLadderTotalSourceRecord.struct(r))
-        ) :+
-          TennetBidladderXml(offsetStorageReader, url, isIntraday = false)
-        data.filter().map(r =>
+            BidLadderSourceRecord.schema,
+            BidLadderSourceRecord.struct(r))
+        )
+        id ++ da
+
+      case "bidladdertotal" =>
+        val dataIntraDay = TennetBidladderTotalXml(offsetStorageReader, url, isIntraday = true)
+        val id = dataIntraDay.filter().map(r =>
           new SourceRecord(
-            data.connectPartition, //source partitions?
-            data.connectOffsetFromRecord(r),
+            dataIntraDay.connectPartition, //source partitions?
+            dataIntraDay.connectOffsetFromRecord(r),
             topic,
             BidLadderTotalSourceRecord.schema,
             BidLadderTotalSourceRecord.struct(r))
         )
+
+         val dataDayAhead =  TennetBidladderTotalXml(offsetStorageReader, url, isIntraday = false)
+         val da = dataDayAhead.filter().map(r =>
+          new SourceRecord(
+            dataDayAhead.connectPartition, //source partitions?
+            dataDayAhead.connectOffsetFromRecord(r),
+            topic,
+            BidLadderTotalSourceRecord.schema,
+            BidLadderTotalSourceRecord.struct(r))
+        )
+        id ++ da
 
       case "imbalanceprice" =>
         val data = TennetImbalancePriceXml(offsetStorageReader, url)
