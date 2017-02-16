@@ -1,7 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.text.SimpleDateFormat
-import java.time.Instant
+import java.time.{Instant, ZoneId}
 import java.util
 import java.util.Date
 
@@ -28,7 +28,7 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader, url: String) e
   val imbalanceUrl = url.concat("balancedelta2017/balans-delta.xml")
   val body =  (Http(imbalanceUrl).asString).body
   private val hash = DigestUtils.sha256Hex(body)
-
+  private val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
 
   def fromBody(): Seq[ImbalanceRecord] = {
     val imbalance = scala.xml.XML.loadString(body)
@@ -48,7 +48,8 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader, url: String) e
         NodeSeqToDouble(record \ "MIN_PRICE").getOrElse(0),
         NodeSeqToDouble(record \ "MID_PRICE").getOrElse(0),
         NodeSeqToDouble(record \ "MAX_PRICE").getOrElse(0),
-        generatedAt
+        generatedAt,
+        epochMillis.fromMinutes(generatedAt, (record \ "TIME").text.toString)
       )
     )
   }
@@ -108,6 +109,7 @@ case class ImbalanceRecord(
                             MinPrice: Double,
                             MidPrice: Double,
                             MaxPrice: Double,
-                            GeneratedAt: Long
+                            GeneratedAt: Long,
+                            ValueTime: Long
                           ) extends Record
 
