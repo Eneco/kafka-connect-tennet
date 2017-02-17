@@ -1,7 +1,6 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.text.SimpleDateFormat
-import java.time.{Instant, LocalDate, ZoneId}
+import java.time.{Instant, LocalDate}
 import java.time.format.DateTimeFormatter
 import java.util
 
@@ -12,7 +11,7 @@ import org.apache.kafka.connect.storage.OffsetStorageReader
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import scala.collection.mutable
-import scala.xml.NodeSeq
+import scala.xml.{Node, NodeSeq}
 import scalaj.http.Http
 
 object TennetBidladderXml {
@@ -32,39 +31,35 @@ case class TennetBidladderXml(storageReader: OffsetStorageReader, url: String, i
   private val bidladderUrl = url.concat(s"laddersize15/$date.xml")
   private val body=  Http(bidladderUrl).asString.body
   private val hash = DigestUtils.sha256Hex(body)
-  private val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
 
 
   def fromBody(): Seq[BidLadderRecord] = {
     val ladder = scala.xml.XML.loadString(body)
 
     (ladder \\ "Record").map(record =>
-      BidLadderRecord(
-        (record \ "DATE").text.toString,
-        (record \ "PTU").text.toInt,
-        (record \ "PERIOD_FROM").text.toString,
-        (record \ "PERIOD_UNTIL").text.toString,
-        NodeSeqToDouble(record \ "TOTAL_RAMPDOWN_REQUIRED").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPDOWN_REQUIRED").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPDOWN_RESERVE").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPDOWN_POWER").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPUP_POWER").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPUP_RESERVE").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPUP_REQUIRED").getOrElse(0),
-        NodeSeqToDouble(record \ "TOTAL_RAMPUP_REQUIRED").getOrElse(0),
-        generatedAt,
-        epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
-      ))
+      mapRecord(record)).filter(isProcessed(_)).asInstanceOf[Seq[BidLadderRecord] ].sortBy(_.PTU)
   }
 
+  def mapRecord(record : Node) : Record  = {
+    BidLadderRecord(
+      (record \ "DATE").text.toString,
+      (record \ "PTU").text.toInt,
+      (record \ "PERIOD_FROM").text.toString,
+      (record \ "PERIOD_UNTIL").text.toString,
+      TennetHelper.NodeSeqToDouble(record \ "TOTAL_RAMPDOWN_REQUIRED").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_REQUIRED").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_RESERVE").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_POWER").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPUP_POWER").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPUP_RESERVE").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPUP_REQUIRED").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "TOTAL_RAMPUP_REQUIRED").getOrElse(0),
+      generatedAt,
+      epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
+    )
+  }
 
-  def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
-
-
-  def filter(): Seq[BidLadderRecord] = fromBody().filter(isProcessed(_)).sortBy(_.PTU)
-
-
-  def isProcessed(record: BidLadderRecord) : Boolean = {
+  override def isProcessed(record: Record) : Boolean = {
     !hash.equals(offset.get.get("hash"))
   }
 
@@ -106,6 +101,5 @@ case class BidLadderRecord(
                             RampUpReserve: Double,
                             RampUpRequired:Double,
                             TotalRampUpRequired: Double,
-                            GeneratedAt:Long,
-                            PtuStart:Long
+                            GeneratedAt:Long
                           ) extends Record

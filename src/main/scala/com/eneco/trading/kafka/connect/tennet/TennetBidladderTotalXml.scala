@@ -21,10 +21,8 @@ object TennetBidladderTotalXml {
 
 case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, url: String, isIntraday: Boolean) extends StrictLogging {
 
-
-  //TODO fix day break
   private val date =if (isIntraday) { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now) }
-  else { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))  }
+      else { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))  }
 
   private  val offset = getConnectOffset(date)
   private val generatedAt = Instant.now.toEpochMilli

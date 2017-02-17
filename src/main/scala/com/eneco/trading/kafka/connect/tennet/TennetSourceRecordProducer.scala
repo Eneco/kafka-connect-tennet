@@ -23,7 +23,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
         )
       case "bidladder" =>
         val dataIntraDay = TennetBidladderXml(offsetStorageReader, url, isIntraday = true)
-        val id = dataIntraDay.filter().map(r =>
+        val id = dataIntraDay.fromBody().map(r =>
           new SourceRecord(
             dataIntraDay.connectPartition, //source partitions?
             dataIntraDay.connectOffsetFromRecord(r),
@@ -34,7 +34,7 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
         )
 
         val dataDayAhead = TennetBidladderXml(offsetStorageReader, url, isIntraday = true)
-        val da= dataDayAhead.filter().map(r =>
+        val da= dataDayAhead.fromBody().map(r =>
           new SourceRecord(
             dataDayAhead.connectPartition, //source partitions?
             dataDayAhead.connectOffsetFromRecord(r),
