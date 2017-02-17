@@ -1,6 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import scala.xml.{Elem, NodeSeq}
+import scala.collection.JavaConverters._
+import scala.xml.NodeSeq
 
 /**
   * Created by dudebowski on 15-2-17.
@@ -58,6 +59,20 @@ object TestData {
 
   def bidLadderRecord: NodeSeq = {
     scala.xml.XML.loadString(bidLadderRecordXmlString) \\ "Record"
+  }
+
+  def connectConfiguration: TennetSourceConfig = {
+   val props = Map(
+      "connector.class" -> "com.eneco.trading.kafka.connect.tennet.TennetSourceConnector",
+      "url" -> "http://www.tennet.org/xml/",
+      "tasks.max" -> "1",
+      "interval" -> "10000",
+      "tennet.balance.delta.topic" -> "tennet_imbalancedelta",
+      "tennet.imbalance.topic" -> "tennet_settlementprice",
+      "tennet.bid.ladder.topic" -> "tennet_bidladder",
+      "tennet.bid.ladder.total.topic" -> "tennet_bidladdertotal"
+    )
+    new TennetSourceConfig(props.asJava)
   }
 }
 

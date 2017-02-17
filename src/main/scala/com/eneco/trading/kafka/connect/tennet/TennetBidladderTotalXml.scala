@@ -1,78 +1,88 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.time.{Instant, LocalDate, ZoneId}
 import java.util
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.storage.OffsetStorageReader
 
-import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.xml.NodeSeq
+import scala.xml.Node
 import scalaj.http.Http
 
 object TennetBidladderTotalXml {
   private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
 }
 
-case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, url: String, isIntraday: Boolean) extends StrictLogging {
+case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, sourceType : SourceType, isIntraday: Boolean)
+  extends SourceRecordProducer with StrictLogging {
 
-  private val date =if (isIntraday) { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now) }
-      else { DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))  }
+  private val date = if (isIntraday) {
+    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now)
+  } else {
+    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))
+  }
 
-  private  val offset = getConnectOffset(date)
-  private val generatedAt = Instant.now.toEpochMilli
-  private val bidladderTotalUrl = url.concat(s"laddersizetotal/$date.xml")
-  private val body=  Http(bidladderTotalUrl).asString.body
-  private val hash = DigestUtils.sha256Hex(body)
-  private val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
+  override val url =  sourceType.baseUrl.concat(s"${sourceType.name}/$date.xml")
 
+  override def produce : Seq[SourceRecord] = {
+    fromBody.map(r =>
+      new SourceRecord(
+        connectPartition,
+        connectOffsetFromRecord(r),
+        sourceType.topic,
+        BidLadderTotalSourceRecord.schema,
+        BidLadderTotalSourceRecord.struct(r)))
+  }
 
-  def fromBody(): Seq[BidLadderTotalRecord] = {
-    val ladder = scala.xml.XML.loadString(body)
+  override def sourceName: String = SourceName.BIDLADDER_TOTAL_NAME.toString
 
-    (ladder \\ "Record").map(record =>
-      BidLadderTotalRecord(
-        (record \ "DATE").text.toString,
-        (record \ "PTU").text.toInt,
-        (record \ "PERIOD_FROM").text.toString,
-        (record \ "PERIOD_UNTIL").text.toString,
-        NodeSeqToDouble(record \ "RAMPDOWN_60_").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPDOWN_15_60").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPDOWN_0_15").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPUP_0_15").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPUP_60_240").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPUP_240_480").getOrElse(0),
-        NodeSeqToDouble(record \ "RAMPUP_480_").getOrElse(0),
-        generatedAt,
-        epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
-      )
+  override def mapRecord(record: Node): TennetSourceRecord  = {
+    BidLadderTotalTennetRecord(
+      (record \ "DATE").text.toString,
+      (record \ "PTU").text.toInt,
+      (record \ "PERIOD_FROM").text.toString,
+      (record \ "PERIOD_UNTIL").text.toString,
+      TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_60_").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_15_60").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_0_15").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPUP_0_15").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPUP_60_240").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPUP_240_480").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "RAMPUP_480_").getOrElse(0),
+      generatedAt,
+      epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
     )
   }
 
-  def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
+  private val offset = getConnectOffset(date)
 
-  def filter(): Seq[BidLadderTotalRecord] = fromBody().filter(isProcessed(_)).sortBy(_.PTU)
+  private def fromBody(): Seq[BidLadderTotalTennetRecord] = {
+    val ladder = scala.xml.XML.loadString(body)
+    (ladder \\ "Record").map(record =>
+      mapRecord(record)).filter(isProcessed(_)).asInstanceOf[Seq[BidLadderTotalTennetRecord]].sortBy(_.PTU)
+  }
 
-  def isProcessed(record: BidLadderTotalRecord) : Boolean = {
+  private def isProcessed(record: TennetSourceRecord): Boolean = {
     !hash.equals(offset.get.get("hash"))
   }
 
-  def connectOffsetFromRecord(record: BidLadderTotalRecord): util.Map[String, Any] = {
+  private def connectOffsetFromRecord(record: BidLadderTotalTennetRecord): util.Map[String, Any] = {
     val offset = Map("sequence" -> record.PTU,
       "hash" -> hash
     ).asJava
-    TennetBidladderTotalXml.offsetCache.put(date,offset)
+    TennetBidladderTotalXml.offsetCache.put(date, offset)
     offset
   }
 
-  def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetBidladderTotalXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
+  private def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetBidladderTotalXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
 
-  def getOffsetFromStorage(name: String): Option[util.Map[String, Any]] = {
+  private def getOffsetFromStorage(name: String): Option[util.Map[String, Any]] = {
     logger.info(s"Recovering offset for $name")
     storageReader.offset(Map("partition" -> date).asJava) match {
       case null =>
@@ -83,24 +93,6 @@ case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, url: Stri
         Option(o.asInstanceOf[util.Map[String, Any]])
     }
   }
-  //TODO?? replace partition with  "bidladder"?
-  def connectPartition(): util.Map[String, String] = Map("partition" -> date)
+
+  private def connectPartition(): util.Map[String, String] = Map("partition" -> date)
 }
-
-case class BidLadderTotalRecord(
-                            Date: String,
-                            PTU: Long,
-                            PeriodFrom: String,
-                            PeriodUntil: String,
-                            Rampdown_60: Double,
-                            Rampdown_0_15: Double,
-                            Rampdown_15_60: Double,
-                            Rampup_0_15: Double,
-                            Rampup_60_240: Double,
-                            Rampup_240_480: Double,
-                            Rampup_480:Double,
-                            GeneratedAt:Long,
-                            PtuStart:Long
-                          ) extends Record
-
-

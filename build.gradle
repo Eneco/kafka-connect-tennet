@@ -67,7 +67,7 @@ dependencies {
     testCompile "org.scalatest:scalatest_$scalaMajorVersion:$scalaTest"
     testCompile "junit:junit:$junit"
     testCompile "org.mockito:mockito-all:$mockitoVersion"
-    
+
     testRuntime "org.pegdown:pegdown:1.6.0"
 
 }

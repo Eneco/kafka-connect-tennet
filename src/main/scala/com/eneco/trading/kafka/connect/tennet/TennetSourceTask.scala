@@ -10,18 +10,9 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 class TennetSourceTask extends SourceTask with StrictLogging {
-  private var poller: Option[TennetSourcePoller] = None
   private val counter = mutable.Map.empty[String, Long]
+  private var poller: Option[TennetSourcePoller] = None
   private var timestamp: Long = 0
-
-  class LoggerTask extends TimerTask {
-    override def run(): Unit = logCounts()
-  }
-
-  def logCounts(): mutable.Map[String, Long] = {
-    counter.foreach( { case (k,v) => logger.info(s"Delivered $v records for $k.") })
-    counter.empty
-  }
 
   override def stop(): Unit = {
     logger.info("Stopping Tennet SourceTask.")
@@ -39,7 +30,7 @@ class TennetSourceTask extends SourceTask with StrictLogging {
 
   override def poll(): util.List[SourceRecord] = {
     val records = poller.map(p => p.poll()).getOrElse(Seq.empty[SourceRecord])
-    records.foreach(r => counter.put(r.topic() , counter.getOrElse(r.topic(), 0L) + 1L))
+    records.foreach(r => counter.put(r.topic(), counter.getOrElse(r.topic(), 0L) + 1L))
 
     val newTimestamp = System.currentTimeMillis()
     if (counter.nonEmpty && scala.concurrent.duration.SECONDS.toSeconds(newTimestamp - timestamp) >= 60000) {
@@ -47,5 +38,14 @@ class TennetSourceTask extends SourceTask with StrictLogging {
       timestamp = newTimestamp
     }
     records
+  }
+
+  def logCounts(): mutable.Map[String, Long] = {
+    counter.foreach({ case (k, v) => logger.info(s"Delivered $v records for $k.") })
+    counter.empty
+  }
+
+  class LoggerTask extends TimerTask {
+    override def run(): Unit = logCounts()
   }
 }

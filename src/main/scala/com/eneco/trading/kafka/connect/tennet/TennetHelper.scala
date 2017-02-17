@@ -5,7 +5,7 @@ import scalaj.http.Http
 
 
 object TennetHelper {
-  def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
+  def NodeSeqToDouble(value: NodeSeq): Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
 
-  def getXml(url : String ) : String =  Http(url).asString.body
+  def getXml(url: String): String = Http(url).asString.body
 }

@@ -41,12 +41,12 @@ object TennetSourceConfig {
 
   val config: ConfigDef = new ConfigDef()
     .define(BALANCE_DELTA_TOPIC, Type.STRING, Importance.HIGH, BALANCE_DELTA_TOPIC_DOC)
-    .define(IMBALANCE_TOPIC, Type.STRING,Importance.HIGH, IMBALANCE_TOPIC_DOC)
-    .define(BID_LADDER_TOPIC, Type.STRING,Importance.HIGH, BID_LADDER_DOC)
-    .define(BID_LADDER_TOTAL_TOPIC, Type.STRING,Importance.HIGH, BID_LADDER_TOTAL_DOC)
+    .define(IMBALANCE_TOPIC, Type.STRING, Importance.HIGH, IMBALANCE_TOPIC_DOC)
+    .define(BID_LADDER_TOPIC, Type.STRING, Importance.HIGH, BID_LADDER_DOC)
+    .define(BID_LADDER_TOTAL_TOPIC, Type.STRING, Importance.HIGH, BID_LADDER_TOTAL_DOC)
     .define(URL, Type.STRING, URL_DEFAULT, Importance.HIGH, URL_DOC)
     .define(REFRESH_RATE, Type.STRING, REFRESH_RATE_DEFAULT, Importance.LOW, REFRESH_RATE_DOC)
-    .define(MAX_BACK_OFF, Type.STRING, MAX_BACK_OFF_DEFAULT , Importance.LOW, MAX_BACK_OFF_DOC)
-    .define(TIMEZONE, Type.STRING, TIMEZONE_DEFAULT , Importance.HIGH, TIMEZONE_DOC)
+    .define(MAX_BACK_OFF, Type.STRING, MAX_BACK_OFF_DEFAULT, Importance.LOW, MAX_BACK_OFF_DOC)
+    .define(TIMEZONE, Type.STRING, TIMEZONE_DEFAULT, Importance.HIGH, TIMEZONE_DOC)
 }
 

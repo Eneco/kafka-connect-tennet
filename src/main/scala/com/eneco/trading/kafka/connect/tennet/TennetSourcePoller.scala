@@ -9,10 +9,6 @@ import org.apache.kafka.connect.storage.OffsetStorageReader
 import scala.util.{Failure, Success, Try}
 
 class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetStorageReader) extends StrictLogging {
-  private val imbalanceBalanceTopic = cfg.getString(TennetSourceConfig.BALANCE_DELTA_TOPIC)
-  private val bidLadderTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOPIC)
-  private val bidLaddertotalTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOTAL_TOPIC)
-  private val settlementPriceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
   private val url = cfg.getString(TennetSourceConfig.URL)
   private val interval = Duration.parse(cfg.getString(TennetSourceConfig.REFRESH_RATE))
   private val maxBackOff = Duration.parse(cfg.getString(TennetSourceConfig.MAX_BACK_OFF))
@@ -33,7 +29,6 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
           logger.error(s"Error trying to retrieve data. ${f.getMessage}")
           logger.info(s"Backing off. Next poll will be around ${backoff.endTime}")
           List.empty[SourceRecord]
-
       }
       records
     }
@@ -43,11 +38,8 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
     }
   }
 
-
   def getRecords: Seq[SourceRecord] = {
-    val records = TennetSourceRecordProducer(offsetStorageReader).produce("imbalance", imbalanceBalanceTopic, url)
-    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladder", bidLadderTopic, url)
-    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("bidladdertotal", bidLaddertotalTopic, url)
-    records ++ TennetSourceRecordProducer(offsetStorageReader).produce("imbalanceprice", settlementPriceTopic, url)
+    TennetSourceTypes.createSources(cfg).flatMap(sr =>
+      TennetSourceRecordProducer(offsetStorageReader).produce(sr))
   }
 }

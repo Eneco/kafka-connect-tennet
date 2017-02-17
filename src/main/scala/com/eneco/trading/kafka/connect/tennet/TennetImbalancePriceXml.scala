@@ -1,79 +1,82 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate, ZoneId}
+import java.time.{ LocalDate}
 import java.util
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.apache.commons.codec.digest.DigestUtils
+import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.storage.OffsetStorageReader
 
-import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.xml.NodeSeq
-import scalaj.http.Http
+import scala.xml.{Node}
 
 object TennetImbalancePriceXml {
   private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
 }
 
-case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, url: String) extends StrictLogging {
+case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, sourceType : SourceType)
+  extends SourceRecordProducer with StrictLogging {
 
-  //TODO fix day break
   private val date = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(-1))
 
-  private  val offset = getConnectOffset(date)
-  private val generatedAt = Instant.now.toEpochMilli
-  private val bidladderTotalUrl = url.concat(s"/imbalanceprice/$date.xml")
-  private val body=  Http(bidladderTotalUrl).asString.body
-  private val hash = DigestUtils.sha256Hex(body)
-  private val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
+  override val url = sourceType.baseUrl.concat(s"/${sourceType.name}/$date.xml")
 
-
-  def fromBody(): Seq[ImbalancePriceRecord] = {
-    val ladder = scala.xml.XML.loadString(body)
-
-    (ladder \\ "Record").map(record =>
-      ImbalancePriceRecord(
-        (record \ "DATE").text.toString,
-        (record \ "PTU").text.toInt,
-        (record \ "PERIOD_FROM").text.toString,
-        (record \ "PERIOD_UNTIL").text.toString,
-        NodeSeqToDouble(record \ "UPWARD_INCIDENT_RESERVE").getOrElse(0),
-        NodeSeqToDouble(record \ "DOWNWARD_INCIDENT_RESERVE").getOrElse(0),
-        NodeSeqToDouble(record \ "UPWARD_DISPATCH").getOrElse(0),
-        NodeSeqToDouble(record \ "DOWNWARD_DISPATCH").getOrElse(0),
-        NodeSeqToDouble(record \ "INCENTIVE_COMPONENT").getOrElse(0),
-        NodeSeqToDouble(record \ "TAKE_FROM_SYSTEM").getOrElse(0),
-        NodeSeqToDouble(record \ "FEED_INTO_SYSTEM").getOrElse(0),
-        (record \ "REGULATION_STATE").text.toInt,
-        generatedAt,
-        epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
-      ))
+  override def produce: Seq[SourceRecord] = {
+    fromBody.map(r =>
+      new SourceRecord(
+        connectPartition,
+        connectOffsetFromRecord(r),
+        sourceType.topic,
+        ImbalancePriceSourceRecord.schema,
+        ImbalancePriceSourceRecord.struct(r)))
   }
 
+  override def sourceName = SourceName.IMBALANCE_PRICE_NAME
 
-  def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
+  override def mapRecord(record: Node): TennetSourceRecord  = {
+    ImbalancePriceTennetRecord(
+      (record \ "DATE").text.toString,
+      (record \ "PTU").text.toInt,
+      (record \ "PERIOD_FROM").text.toString,
+      (record \ "PERIOD_UNTIL").text.toString,
+      TennetHelper.NodeSeqToDouble(record \ "UPWARD_INCIDENT_RESERVE").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "DOWNWARD_INCIDENT_RESERVE").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "UPWARD_DISPATCH").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "DOWNWARD_DISPATCH").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "INCENTIVE_COMPONENT").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "TAKE_FROM_SYSTEM").getOrElse(0),
+      TennetHelper.NodeSeqToDouble(record \ "FEED_INTO_SYSTEM").getOrElse(0),
+      (record \ "REGULATION_STATE").text.toInt,
+      generatedAt,
+      epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
+    )
+  }
 
-  def filter(): Seq[ImbalancePriceRecord] = fromBody().filter(isProcessed(_)).sortBy(_.PTU)
+  private val offset = getConnectOffset(date)
 
-  def isProcessed(record: ImbalancePriceRecord) : Boolean = {
+  private def fromBody(): Seq[ImbalancePriceTennetRecord] = {
+    val ladder = scala.xml.XML.loadString(body)
+    (ladder \\ "Record").map(record => mapRecord(record)).filter(isProcessed(_)).asInstanceOf[Seq[ImbalancePriceTennetRecord]].sortBy(_.PTU)
+  }
+
+  private def isProcessed(record: TennetSourceRecord): Boolean = {
     !hash.equals(offset.get.get("hash"))
   }
 
-  def connectOffsetFromRecord(record: ImbalancePriceRecord): util.Map[String, Any] = {
+  private def connectOffsetFromRecord(record: ImbalancePriceTennetRecord): util.Map[String, Any] = {
     val offset = Map("sequence" -> record.PTU,
       "hash" -> hash
     ).asJava
-    TennetImbalancePriceXml.offsetCache.put(date,offset)
+    TennetImbalancePriceXml.offsetCache.put(date, offset)
     offset
   }
 
-  def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetImbalancePriceXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
+  private def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetImbalancePriceXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
 
-  def getOffsetFromStorage(name: String): Option[util.Map[String, Any]] = {
+  private def getOffsetFromStorage(name: String): Option[util.Map[String, Any]] = {
     logger.info(s"Recovering offset for $name")
     storageReader.offset(Map("partition" -> date).asJava) match {
       case null =>
@@ -84,24 +87,7 @@ case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, url: Stri
         Option(o.asInstanceOf[util.Map[String, Any]])
     }
   }
-  //TODO?? replace partition with  "imbalanceprice"?
-  def connectPartition(): util.Map[String, String] = Map("partition" -> date)
-}
 
-case class ImbalancePriceRecord(
-                            Date: String,
-                            PTU: Long,
-                            PeriodFrom: String,
-                            PeriodUntil: String,
-                            UpwardIncidentReserve: Double,
-                            DownwardIncidentReserve: Double,
-                            UpwardDispatch: Double,
-                            DownwardDispatch: Double,
-                            IncentiveComponent: Double,
-                            TakeFromSystem:Double,
-                            FeedIntoSystem: Double,
-                            RegulationState: Long,
-                            GeneratedAt : Long,
-                            PtuStart:Long
-                          ) extends Record
+  private def connectPartition(): util.Map[String, String] = Map("partition" -> date)
+}
 

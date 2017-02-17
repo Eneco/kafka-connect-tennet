@@ -1,21 +1,23 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import scala.xml.NodeSeq
+import java.time.{Instant, ZoneId}
 
-/**
-  * Created by dudebowski on 15-2-17.
-  */
-trait TennetXml {
-  def isProcessed(record: Record) : Boolean
+import org.apache.commons.codec.digest.DigestUtils
+import org.apache.kafka.connect.source.SourceRecord
 
-  //def NodeSeqToDouble(value: NodeSeq) : Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
+import scala.xml.Node
 
-  def fromBody(): Seq[Record]
+trait SourceRecordProducer {
+  def produce: Seq[SourceRecord]
+  def sourceName: String
+  def mapRecord(record: Node) : TennetSourceRecord
 
+  val url: String
+  val generatedAt = Instant.now.toEpochMilli
+  val body = TennetHelper.getXml(url)
+  val hash = DigestUtils.sha256Hex(body)
+  val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
 }
 
-
-
-
-abstract class Record
+abstract class TennetSourceRecord
 
