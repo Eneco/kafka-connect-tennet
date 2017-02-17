@@ -34,6 +34,10 @@ object TennetSourceConfig {
   val MAX_BACK_OFF_DEFAULT = "PT15M"
   val MAX_BACK_OFF_DOC = "On failure, exponentially backoff to at most this ISO8601 duration"
 
+  val TIMEZONE = "tennet.timezone"
+  val TIMEZONE_DEFAULT = "Europe/Amsterdam"
+  val TIMEZONE_DOC = "Timezone of the tennet API, used for deriving epochmillis for records"
+
 
   val config: ConfigDef = new ConfigDef()
     .define(BALANCE_DELTA_TOPIC, Type.STRING, Importance.HIGH, BALANCE_DELTA_TOPIC_DOC)
@@ -43,5 +47,6 @@ object TennetSourceConfig {
     .define(URL, Type.STRING, URL_DEFAULT, Importance.HIGH, URL_DOC)
     .define(REFRESH_RATE, Type.STRING, REFRESH_RATE_DEFAULT, Importance.LOW, REFRESH_RATE_DOC)
     .define(MAX_BACK_OFF, Type.STRING, MAX_BACK_OFF_DEFAULT , Importance.LOW, MAX_BACK_OFF_DOC)
+    .define(TIMEZONE, Type.STRING, TIMEZONE_DEFAULT , Importance.HIGH, TIMEZONE_DOC)
 }
 

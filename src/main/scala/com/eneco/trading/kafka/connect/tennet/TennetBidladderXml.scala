@@ -1,7 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.text.SimpleDateFormat
-import java.time.{Instant, LocalDate}
+import java.time.{Instant, LocalDate, ZoneId}
 import java.time.format.DateTimeFormatter
 import java.util
 
@@ -32,6 +32,7 @@ case class TennetBidladderXml(storageReader: OffsetStorageReader, url: String, i
   private val bidladderUrl = url.concat(s"laddersize15/$date.xml")
   private val body=  Http(bidladderUrl).asString.body
   private val hash = DigestUtils.sha256Hex(body)
+  private val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
 
 
   def fromBody(): Seq[BidLadderRecord] = {
@@ -51,7 +52,8 @@ case class TennetBidladderXml(storageReader: OffsetStorageReader, url: String, i
         NodeSeqToDouble(record \ "RAMPUP_RESERVE").getOrElse(0),
         NodeSeqToDouble(record \ "RAMPUP_REQUIRED").getOrElse(0),
         NodeSeqToDouble(record \ "TOTAL_RAMPUP_REQUIRED").getOrElse(0),
-        generatedAt
+        generatedAt,
+        epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
       ))
   }
 
@@ -104,5 +106,6 @@ case class BidLadderRecord(
                             RampUpReserve: Double,
                             RampUpRequired:Double,
                             TotalRampUpRequired: Double,
-                            GeneratedAt:Long
+                            GeneratedAt:Long,
+                            PtuStart:Long
                           ) extends Record

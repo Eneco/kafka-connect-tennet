@@ -2,7 +2,7 @@ package com.eneco.trading.kafka.connect.tennet
 
 import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate}
+import java.time.{Instant, LocalDate, ZoneId}
 import java.util
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -29,6 +29,7 @@ case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, url: Stri
   private val bidladderTotalUrl = url.concat(s"/imbalanceprice/$date.xml")
   private val body=  Http(bidladderTotalUrl).asString.body
   private val hash = DigestUtils.sha256Hex(body)
+  private val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
 
 
   def fromBody(): Seq[ImbalancePriceRecord] = {
@@ -48,7 +49,8 @@ case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, url: Stri
         NodeSeqToDouble(record \ "TAKE_FROM_SYSTEM").getOrElse(0),
         NodeSeqToDouble(record \ "FEED_INTO_SYSTEM").getOrElse(0),
         (record \ "REGULATION_STATE").text.toInt,
-        generatedAt: Long
+        generatedAt,
+        epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
       ))
   }
 
@@ -99,6 +101,7 @@ case class ImbalancePriceRecord(
                             TakeFromSystem:Double,
                             FeedIntoSystem: Double,
                             RegulationState: Long,
-                            GeneratedAt : Long
+                            GeneratedAt : Long,
+                            PtuStart:Long
                           ) extends Record
 
