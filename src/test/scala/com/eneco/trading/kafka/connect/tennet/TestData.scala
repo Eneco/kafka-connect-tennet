@@ -1,5 +1,9 @@
 package com.eneco.trading.kafka.connect.tennet
 
+import java.util
+
+import org.apache.kafka.connect.storage.OffsetStorageReader
+
 import scala.collection.JavaConverters._
 import scala.xml.NodeSeq
 
@@ -57,6 +61,8 @@ object TestData {
     <BIDLADDER>
     """
 
+  val balanceDeltaSourceType = SourceType(SourceName.BALANCE_DELTA_NAME.toString, "topic","http://localhost/xml/")
+
   def bidLadderRecord: NodeSeq = {
     scala.xml.XML.loadString(bidLadderRecordXmlString) \\ "Record"
   }
@@ -73,6 +79,16 @@ object TestData {
       "tennet.bid.ladder.total.topic" -> "tennet_bidladdertotal"
     )
     new TennetSourceConfig(props.asJava)
+  }
+}
+
+class MockOffsetStorageReader extends OffsetStorageReader {
+  override def offset[T](partition: util.Map[String, T]): util.Map[String, AnyRef] = {
+    null
+  }
+
+  override def offsets[T](partitions: util.Collection[util.Map[String, T]]): util.Map[util.Map[String, T], util.Map[String, AnyRef]] = {
+    null
   }
 }
 

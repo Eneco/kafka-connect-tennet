@@ -14,8 +14,8 @@ trait SourceRecordProducer {
 
   val url: String
   val generatedAt = Instant.now.toEpochMilli
-  val body = TennetHelper.getXml(url)
-  val hash = DigestUtils.sha256Hex(body)
+  def body = TennetHelper.getXml(url)
+  def hash = DigestUtils.sha256Hex(body)
   val epochMillis = EpochMillis(ZoneId.of("Europe/Amsterdam"))
 }
 

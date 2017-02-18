@@ -9,20 +9,22 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
   def produce(sourceType: SourceType): Seq[SourceRecord] = {
     sourceType.name match {
       case SourceName.BALANCE_DELTA_NAME  =>
-        TennetImbalanceXml(offsetStorageReader, sourceType).produce
+        lazy val producer = TennetImbalanceXml(offsetStorageReader, sourceType)
+        producer.produce
 
       case SourceName.BIDLADDER_NAME  =>
-        val id = (TennetBidladderXml(offsetStorageReader, sourceType, isIntraday = true)).produce
-        val da =   (TennetBidladderXml(offsetStorageReader, sourceType, isIntraday = false)).produce
-        id++da
+        lazy val idProducer = TennetBidladderXml(offsetStorageReader, sourceType, isIntraday = true)
+        lazy val daProducer = TennetBidladderXml(offsetStorageReader, sourceType, isIntraday = false)
+        idProducer.produce ++ daProducer.produce
 
       case SourceName.BIDLADDER_TOTAL_NAME  =>
-        val id = (TennetBidladderTotalXml(offsetStorageReader, sourceType, isIntraday = true)).produce
-        val da =   (TennetBidladderTotalXml(offsetStorageReader, sourceType, isIntraday = false)).produce
-        id++da
+        lazy val idProducer = TennetBidladderTotalXml(offsetStorageReader, sourceType, isIntraday = true)
+        lazy val daProducer = TennetBidladderTotalXml(offsetStorageReader, sourceType, isIntraday = false)
+        idProducer.produce ++ daProducer.produce
 
       case SourceName.IMBALANCE_PRICE_NAME =>
-        TennetImbalancePriceXml(offsetStorageReader, sourceType).produce
+        lazy val producer = TennetImbalancePriceXml(offsetStorageReader, sourceType)
+        producer.produce
       case _ =>
         logger.warn("Unknown type")
         List.empty[SourceRecord]

@@ -1,10 +1,9 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.time.{Duration, Instant}
-import java.util
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.apache.kafka.connect.storage.OffsetStorageReader
+import org.apache.kafka.connect.source.SourceRecord
 import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
 
 class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging {
@@ -40,28 +39,26 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
     val srcTypes: Seq[SourceType] = TennetSourceTypes.createSources(cfg)
 
     assert(srcTypes.size == 4)
-    assert(srcTypes.count(_.name == "balansdelta2017") == 1)
+    assert(srcTypes.count(_.name == "balancedelta2017") == 1)
     assert(srcTypes.count(_.topic == imbTopic) == 1)
   }
 
   test("TennetSourceRecordProducer") {
     val mock = new MockOffsetStorageReader
     val producer = TennetSourceRecordProducer(mock)
-    val record = BidLadderTennetRecord
-    //val tennetXml = TennetBidladderXml(mock, "http://www.tennet.org/", isIntraday = true)
-    //val recs = TestData.bidLadderRecord.map(tennetXml.mapRecord(_))
+    val records = producer.produce(TestData.balanceDeltaSourceType)
+    assert(records.size==2)
+  }
+
+  test("TennetXML offset") {
+    val offsetStorageReader = new MockOffsetStorageReader
+    lazy val tennetXml = TennetImbalanceXml(offsetStorageReader, TestData.balanceDeltaSourceType)
+    val records: Seq[SourceRecord] = tennetXml.produce
+    assert(records.size==0)
   }
 }
 
-class MockOffsetStorageReader extends OffsetStorageReader {
-  override def offset[T](partition: util.Map[String, T]): util.Map[String, AnyRef] = {
-    null
-  }
 
-  override def offsets[T](partitions: util.Collection[util.Map[String, T]]): util.Map[util.Map[String, T], util.Map[String, AnyRef]] = {
-    null
-  }
-}
 
 
 
