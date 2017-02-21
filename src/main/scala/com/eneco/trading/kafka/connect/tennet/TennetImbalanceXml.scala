@@ -22,6 +22,8 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader,sourceType: Sou
 
   override val url = sourceType.baseUrl.concat(s"${sourceType.name}/balans-delta.xml")
 
+  val epochMillis = EpochMillis(sourceType.timeZone)
+
   override def produce: Seq[SourceRecord] = {
     fromBody.map(r =>
       new SourceRecord(

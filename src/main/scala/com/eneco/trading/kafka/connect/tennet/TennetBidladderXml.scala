@@ -1,11 +1,11 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.time.format.DateTimeFormatter
-import java.time.{Instant, LocalDate, ZoneId}
+import java.time.LocalDate
 import java.util
+import java.util.Date
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
-import org.apache.commons.codec.digest.DigestUtils
 import org.apache.kafka.connect.source.SourceRecord
 import org.apache.kafka.connect.storage.OffsetStorageReader
 
@@ -13,20 +13,17 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 import scala.xml.Node
-import scalaj.http.Http
 
 object TennetBidladderXml {
   private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
 }
 
-case class TennetBidladderXml(storageReader: OffsetStorageReader, sourceType: SourceType, isIntraday: Boolean)
+case class TennetBidladderXml(storageReader: OffsetStorageReader, sourceType: SourceType, localDate: LocalDate)
   extends SourceRecordProducer with StrictLogging {
 
-  private val date = if (isIntraday) {
-    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now)
-  }  else {
-    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))
-  }
+  private val date: String = DateTimeFormatter.ofPattern("yyyyMMdd").format(localDate)
+
+  val epochMillis = EpochMillis(sourceType.timeZone)
 
   override val url = sourceType.baseUrl.concat(s"${sourceType.name}/$date.xml")
 

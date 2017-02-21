@@ -1,14 +1,40 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.time.{Duration, Instant}
+import java.time.{Duration, Instant, LocalDate}
+import java.nio.file.StandardCopyOption.REPLACE_EXISTING
+import java.nio.file.Files.copy
+import java.nio.file.Paths.get
+import java.time
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.kafka.connect.source.SourceRecord
-import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
+import org.eclipse.jetty.server.Server
+import org.eclipse.jetty.servlet.DefaultServlet
+import org.eclipse.jetty.servlet.ServletContextHandler
+import org.eclipse.jetty.servlet.ServletHolder
 
-class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter with StrictLogging {
+import scalaj.http.Http;
 
+class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfterAll with StrictLogging {
+
+  val  server = new Server(8899)
   val xml = scala.xml.XML.loadString(TestData.xmlString)
+
+  override def beforeAll() {
+    val  context = new ServletContextHandler()
+    val  defaultServ = new ServletHolder("default", classOf[DefaultServlet])
+    defaultServ.setInitParameter("resourceBase",System.getProperty("user.dir"))
+    defaultServ.setInitParameter("dirAllowed","true")
+    context.addServlet(defaultServ,"/")
+    server.setHandler(context)
+
+    server.start()
+  }
+
+  override def afterAll() {
+    server.stop
+  }
 
   test("parse xml") {
     val imbalance = scala.xml.XML.loadString(TestData.xmlString)
@@ -47,7 +73,7 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
     val mock = new MockOffsetStorageReader
     val producer = TennetSourceRecordProducer(mock)
     val records = producer.produce(TestData.balanceDeltaSourceType)
-    assert(records.size==2)
+    assert(records.size==30)
   }
 
   test("TennetXML offset") {
@@ -56,11 +82,16 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfter wit
     val records: Seq[SourceRecord] = tennetXml.produce
     assert(records.size==0)
   }
+
+  test("Test embedded server") {
+    val req = Http("http://localhost:8899/testdata/balancedelta2017/BALANCE_DELTA.xml")
+    val resp = req.asString.body
+    println(resp)
+  }
+  test("Test datelist") {
+       val dayList = TennetHelper.createPrevDaysList(4)
+       dayList should contain (LocalDate.now.plusDays(-4))
+       dayList should contain (LocalDate.now.plusDays(-1))
+       assert(dayList.size==4)
+  }
 }
-
-
-
-
-
-
-

@@ -1,5 +1,6 @@
 package com.eneco.trading.kafka.connect.tennet
 
+import java.time.ZoneId
 import java.util
 
 import org.apache.kafka.connect.storage.OffsetStorageReader
@@ -61,7 +62,7 @@ object TestData {
     <BIDLADDER>
     """
 
-  val balanceDeltaSourceType = SourceType(SourceName.BALANCE_DELTA_NAME.toString, "topic","http://localhost/xml/")
+  val balanceDeltaSourceType = SourceType(SourceName.BALANCE_DELTA_NAME.toString, "topic","http://localhost:8899/testdata/",ZoneId.of("Europe/Amsterdam"))
 
   def bidLadderRecord: NodeSeq = {
     scala.xml.XML.loadString(bidLadderRecordXmlString) \\ "Record"

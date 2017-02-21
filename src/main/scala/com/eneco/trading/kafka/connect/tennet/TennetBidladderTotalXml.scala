@@ -19,14 +19,12 @@ object TennetBidladderTotalXml {
   private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
 }
 
-case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, sourceType : SourceType, isIntraday: Boolean)
+case class TennetBidladderTotalXml(storageReader: OffsetStorageReader, sourceType : SourceType, localDate: LocalDate)
   extends SourceRecordProducer with StrictLogging {
 
-  private val date = if (isIntraday) {
-    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now)
-  } else {
-    DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(1))
-  }
+  private val date: String = DateTimeFormatter.ofPattern("yyyyMMdd").format(localDate)
+
+  val epochMillis = EpochMillis(sourceType.timeZone)
 
   override val url =  sourceType.baseUrl.concat(s"${sourceType.name}/$date.xml")
 

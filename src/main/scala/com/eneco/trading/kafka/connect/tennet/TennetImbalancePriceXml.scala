@@ -1,7 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.time.format.DateTimeFormatter
-import java.time.{ LocalDate}
+import java.time.{LocalDate, ZoneId}
 import java.util
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
@@ -11,16 +11,18 @@ import org.apache.kafka.connect.storage.OffsetStorageReader
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable
-import scala.xml.{Node}
+import scala.xml.Node
 
 object TennetImbalancePriceXml {
   private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
 }
 
-case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, sourceType : SourceType)
+case class TennetImbalancePriceXml(storageReader: OffsetStorageReader, sourceType : SourceType, localDate: LocalDate)
   extends SourceRecordProducer with StrictLogging {
 
-  private val date = DateTimeFormatter.ofPattern("yyyyMMdd").format(LocalDate.now.plusDays(-1))
+  private val date = DateTimeFormatter.ofPattern("yyyyMMdd").format(localDate)
+
+  val epochMillis = EpochMillis(sourceType.timeZone)
 
   override val url = sourceType.baseUrl.concat(s"/${sourceType.name}/$date.xml")
 
