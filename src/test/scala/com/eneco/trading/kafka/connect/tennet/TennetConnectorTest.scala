@@ -1,6 +1,6 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.time.{Duration, Instant, LocalDate}
+import java.time.{Clock, Duration, Instant, LocalDate}
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.nio.file.Files.copy
 import java.nio.file.Paths.get
@@ -16,9 +16,9 @@ import org.eclipse.jetty.servlet.ServletHolder
 
 import scalaj.http.Http;
 
-class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfterAll with StrictLogging {
+class TennetConnectorTest extends TestBase {
 
-  val  server = new Server(8899)
+  val server = new Server(8899)
   val xml = scala.xml.XML.loadString(TestData.xmlString)
 
   override def beforeAll() {
@@ -29,10 +29,13 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfterAll 
     context.addServlet(defaultServ,"/")
     server.setHandler(context)
 
+    logger.info(s"Starting jetty serving ${System.getProperty("user.dir")}")
+
     server.start()
   }
 
   override def afterAll() {
+    logger.info(s"Stopping jetty server.")
     server.stop
   }
 
@@ -71,16 +74,21 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfterAll 
 
   test("TennetSourceRecordProducer") {
     val mock = new MockOffsetStorageReader
-    val producer = TennetSourceRecordProducer(mock)
-    val records = producer.produce(TestData.balanceDeltaSourceType)
+    val producer = new TennetSourcePoller(TestData.connectConfiguration, mock)
+    val records = producer.getRecords
     assert(records.size==30)
   }
 
   test("TennetXML offset") {
-    val offsetStorageReader = new MockOffsetStorageReader
-    lazy val tennetXml = TennetImbalanceXml(offsetStorageReader, TestData.balanceDeltaSourceType)
+    object mockServiceProvider extends ServiceProvider {
+      override val xmlReader = HttpXmlReader
+      override val storageReader = new MockOffsetStorageReader()
+      override val clock = Clock.systemUTC()
+    }
+
+    lazy val tennetXml = TennetImbalanceXml(mockServiceProvider, TestData.balanceDeltaSourceType)
     val records: Seq[SourceRecord] = tennetXml.produce
-    assert(records.size==0)
+    assert(records.size==30)
   }
 
   test("Test embedded server") {

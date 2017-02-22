@@ -1,6 +1,9 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.time.{Duration, ZoneId}
+import java.util
+
+import com.typesafe.scalalogging.slf4j.StrictLogging
 
 object TennetSourceTypes {
 
@@ -16,19 +19,23 @@ object TennetSourceTypes {
     val workingdays = Duration.parse("P-4D")
 
 
-    val balanceDelta = SourceType(SourceName.BALANCE_DELTA_NAME.toString, imbalanceBalanceTopic, url, zoneId)
-    val bidLadder = SourceType(SourceName.BIDLADDER_NAME.toString, bidLadderTopic, url, zoneId)
-    val bidladderTotal = SourceType(SourceName.BIDLADDER_TOTAL_NAME.toString, bidLaddertotalTopic, url, zoneId)
-    val imbalancePrice = SourceType(SourceName.IMBALANCE_PRICE_NAME.toString, settlementPriceTopic, url, zoneId)
-    val priceLadder = SourceType(SourceName.PRICE_LADDER_NAME.toString, priceLadderTopic, url, zoneId)
+    val balanceDelta = SourceType(SourceName.BALANCE_DELTA_NAME.toString, imbalanceBalanceTopic, url, zoneId, 0, 0)
+    val bidLadder = SourceType(SourceName.BIDLADDER_NAME.toString, bidLadderTopic, url, zoneId, 1, 0)
+    val bidladderTotal = SourceType(SourceName.BIDLADDER_TOTAL_NAME.toString, bidLaddertotalTopic, url, zoneId, 1, 0)
+    val imbalancePrice = SourceType(SourceName.IMBALANCE_PRICE_NAME.toString, settlementPriceTopic, url, zoneId, 0, 4)
+    val priceLadder = SourceType(SourceName.PRICE_LADDER_NAME.toString, priceLadderTopic, url, zoneId, 1, 0)
 
 
     List[SourceType](balanceDelta, bidLadder, bidladderTotal, imbalancePrice,priceLadder)
   }
 }
 
-case class SourceType(name: String, topic: String, baseUrl: String, timeZone: ZoneId) {
-}
+case class SourceType(name: String,
+                      topic: String,
+                      baseUrl: String,
+                      timeZone: ZoneId,
+                      forwardDays: Int,
+                      backwardDays: Int)
 
 object SourceName extends Enumeration {
   val BALANCE_DELTA_NAME = "balancedelta2017"

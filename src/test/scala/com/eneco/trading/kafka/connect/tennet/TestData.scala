@@ -62,7 +62,7 @@ object TestData {
     <BIDLADDER>
     """
 
-  val balanceDeltaSourceType = SourceType(SourceName.BALANCE_DELTA_NAME.toString, "topic","http://localhost:8899/testdata/",ZoneId.of("Europe/Amsterdam"))
+  val balanceDeltaSourceType = SourceType(SourceName.BALANCE_DELTA_NAME.toString, "topic","http://localhost:8899/testdata/",ZoneId.of("Europe/Amsterdam"), 0,0)
 
   def bidLadderRecord: NodeSeq = {
     scala.xml.XML.loadString(bidLadderRecordXmlString) \\ "Record"
@@ -71,7 +71,7 @@ object TestData {
   def connectConfiguration: TennetSourceConfig = {
    val props = Map(
       "connector.class" -> "com.eneco.trading.kafka.connect.tennet.TennetSourceConnector",
-      "url" -> "http://www.tennet.org/xml/",
+      "tennet.url" -> "http://localhost:8899/testdata/",
       "tasks.max" -> "1",
       "interval" -> "10000",
       "tennet.balance.delta.topic" -> "tennet_imbalancedelta",

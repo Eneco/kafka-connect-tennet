@@ -2,7 +2,12 @@ package com.eneco.trading.kafka.connect.tennet
 
 import org.apache.kafka.connect.data.{Schema, SchemaBuilder, Struct}
 
-object ImbalanceSourceRecord {
+abstract class TennetSourceRecordBuilder[T <: TennetSourceRecord] {
+  val schema : Schema
+  def struct(record: T) : Struct
+}
+
+object ImbalanceSourceRecord extends TennetSourceRecordBuilder[ImbalanceTennetRecord] {
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalance")
     .field("number", Schema.INT64_SCHEMA)
     .field("sequence_number", Schema.INT64_SCHEMA)
@@ -42,9 +47,10 @@ object ImbalanceSourceRecord {
       .put("max_price", record.MaxPrice)
       .put("generated_at", record.GeneratedAt)
       .put("value_time", record.ValueTime)
+
 }
 
-object BidLadderSourceRecord {
+object BidLadderSourceRecord extends TennetSourceRecordBuilder[BidLadderTennetRecord] {
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.bidladder")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
@@ -80,7 +86,7 @@ object BidLadderSourceRecord {
       .put("ptu_start", record.PtuStart)
 }
 
-object BidLadderTotalSourceRecord {
+object BidLadderTotalSourceRecord extends TennetSourceRecordBuilder[BidLadderTotalTennetRecord]{
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.bidladdertotal")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
@@ -114,7 +120,7 @@ object BidLadderTotalSourceRecord {
       .put("ptu_start", record.PtuStart)
 }
 
-object ImbalancePriceSourceRecord {
+object ImbalancePriceSourceRecord extends TennetSourceRecordBuilder[ImbalancePriceTennetRecord]{
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalanceprice")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
@@ -151,7 +157,7 @@ object ImbalancePriceSourceRecord {
 }
 
 
-object PriceLadderSourceRecord {
+object PriceLadderSourceRecord extends TennetSourceRecordBuilder[PriceLadderTennetRecord]{
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.priceladder")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)

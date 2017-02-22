@@ -29,23 +29,23 @@ class TennetSourceTask extends SourceTask with StrictLogging {
   override def version(): String = "1.0.0"
 
   override def poll(): util.List[SourceRecord] = {
-    val records = poller.map(p => p.poll()).getOrElse(Seq.empty[SourceRecord])
+    val records = poller match {
+      case Some(p) => p.poll()
+      case _ => throw new RuntimeException("Polling before task started")
+    }
+
+    countRecords(records)
+    records
+  }
+
+  def countRecords(records: util.List[SourceRecord]): Unit = {
     records.foreach(r => counter.put(r.topic(), counter.getOrElse(r.topic(), 0L) + 1L))
 
     val newTimestamp = System.currentTimeMillis()
     if (counter.nonEmpty && scala.concurrent.duration.SECONDS.toSeconds(newTimestamp - timestamp) >= 60000) {
-      logCounts()
+      counter.foreach({ case (k, v) => logger.info(s"Delivered $v records for $k.") })
+      counter.empty
       timestamp = newTimestamp
     }
-    records
-  }
-
-  def logCounts(): mutable.Map[String, Long] = {
-    counter.foreach({ case (k, v) => logger.info(s"Delivered $v records for $k.") })
-    counter.empty
-  }
-
-  class LoggerTask extends TimerTask {
-    override def run(): Unit = logCounts()
   }
 }

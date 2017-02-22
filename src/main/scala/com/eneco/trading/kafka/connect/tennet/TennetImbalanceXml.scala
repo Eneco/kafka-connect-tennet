@@ -1,42 +1,52 @@
 package com.eneco.trading.kafka.connect.tennet
 
-import java.text.SimpleDateFormat
-import java.util
-import java.util.Date
+import java.time.Instant
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.kafka.connect.source.SourceRecord
-import org.apache.kafka.connect.storage.OffsetStorageReader
 
-import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import scala.collection.mutable
-import scala.xml.{Node}
+import scala.collection.immutable.Stream.Empty
+import scala.xml.Node
 
-object TennetImbalanceXml {
-  private val offsetCache = mutable.Map[String, util.Map[String, Any]]()
-}
+case class TennetImbalanceXml(services: ServiceProvider, sourceType: SourceType)
+  extends SourceRecordProducer(services, sourceType) with StrictLogging{
 
-case class TennetImbalanceXml(storageReader: OffsetStorageReader,sourceType: SourceType)
-  extends SourceRecordProducer with StrictLogging{
+  val OFFSET_MAX_MILLIS = 60 * 60 * 1000;
 
-  override val url = sourceType.baseUrl.concat(s"${sourceType.name}/balans-delta.xml")
+  override def schema = ImbalanceSourceRecord.schema
 
-  val epochMillis = EpochMillis(sourceType.timeZone)
+  override def produce : Seq[SourceRecord] = {
+    val url = sourceType.baseUrl.concat(s"${sourceType.name}/balans-delta.xml")
 
-  override def produce: Seq[SourceRecord] = {
-    fromBody.map(r =>
-      new SourceRecord(
-        connectPartition,
-        connectOffsetFromRecord(r),
-        sourceType.topic,
-        ImbalanceSourceRecord.schema,
-        ImbalanceSourceRecord.struct(r)))
+    services.xmlReader.getXml(url) match {
+      case Some(body) => {
+        val generatedAt = Instant.now(services.clock).toEpochMilli
+        val records = (scala.xml.XML.loadString(body) \\ "RECORD")
+          .map(mapRecord(_, generatedAt))
+          .filter(r => getOffset(r.ValueTime.toString()) == "")
+
+        if (!records.isEmpty) {
+          val newestValueTime = records.maxBy(_.ValueTime).ValueTime
+          truncateOffsets(k => k.toLong > newestValueTime - OFFSET_MAX_MILLIS)
+        }
+
+        records.map(r => {
+          setOffset(r.ValueTime.toString, generatedAt.toString)
+          new SourceRecord(
+            sourcePartition,
+            getOffsets.asJava,
+            sourceType.topic,
+            schema,
+            ImbalanceSourceRecord.struct(r))
+        })
+
+      }
+      case _ => Empty
+    }
   }
 
-  override def sourceName: String = SourceName.BALANCE_DELTA_NAME.toString
-
-  override def mapRecord(record: Node): ImbalanceTennetRecord = {
+  override def mapRecord(record: Node, generatedAt: Long): ImbalanceTennetRecord = {
     ImbalanceTennetRecord(
       (record \ "NUMBER").text.toInt,
       (record \ "SEQUENCE_NUMBER").text.toInt,
@@ -56,46 +66,4 @@ case class TennetImbalanceXml(storageReader: OffsetStorageReader,sourceType: Sou
       epochMillis.fromMinutes(generatedAt, (record \ "TIME").text.toString)
     )
   }
-
-  private val date = new SimpleDateFormat("dd-MM-yyyy").format(new Date)
-
-  private val offset = getConnectOffset(date)
-
-  private def fromBody(): Seq[ImbalanceTennetRecord] = {
-    val imbalance = scala.xml.XML.loadString(body)
-    (imbalance \\ "RECORD")
-      .map(record => mapRecord(record))
-      .filter(isProcessed(_))
-      .asInstanceOf[Seq[ImbalanceTennetRecord]]
-      .sortBy(_.SequenceNumber)
-  }
-
-  private def isProcessed(record: ImbalanceTennetRecord): Boolean = {
-    val lastSequence = offset.get.get("sequence")
-    record.SequenceNumber > lastSequence.asInstanceOf[Long].longValue()
-  }
-
-  private def connectOffsetFromRecord(record: ImbalanceTennetRecord): util.Map[String, Any] = {
-    val offset = Map("sequence" -> record.SequenceNumber,
-      "hash" -> hash
-    ).asJava
-    TennetImbalanceXml.offsetCache.put(date, offset)
-    offset
-  }
-
-  private def getConnectOffset(date: String): Option[util.Map[String, Any]] = TennetImbalanceXml.offsetCache.get(date).orElse(getOffsetFromStorage(date))
-
-  private def getOffsetFromStorage(name: String): Option[util.Map[String, Any]] = {
-    logger.info(s"Recovering offset for $name")
-    storageReader.offset(Map("partition" -> date).asJava) match {
-      case null =>
-        logger.info(s"No offset found for $name")
-        Option(Map("sequence" -> 0l, "hash" -> "").asJava)
-      case o =>
-        logger.info(s"Offset for $name is : ${o.toString}")
-        Option(o.asInstanceOf[util.Map[String, Any]])
-    }
-  }
-
-  private def connectPartition(): util.Map[String, String] = Map("partition" -> date)
 }
