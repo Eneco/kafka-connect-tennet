@@ -24,6 +24,10 @@ case class TennetSourceRecordProducer(offsetStorageReader: OffsetStorageReader) 
       case SourceName.IMBALANCE_PRICE_NAME =>
         TennetHelper.createPrevDaysList(4).flatMap(l => TennetImbalancePriceXml(offsetStorageReader, sourceType, l).produce)
 
+      case SourceName.PRICE_LADDER_NAME =>
+        TennetHelper.createNextDaysList(2).flatMap(l => PriceLadderXml(offsetStorageReader, sourceType, l).produce)
+
+
       case _ =>
         logger.warn("Unknown type")
         List.empty[SourceRecord]

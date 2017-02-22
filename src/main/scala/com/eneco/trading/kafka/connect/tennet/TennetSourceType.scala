@@ -9,6 +9,7 @@ object TennetSourceTypes {
     val bidLadderTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOPIC)
     val bidLaddertotalTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOTAL_TOPIC)
     val settlementPriceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
+    val priceLadderTopic = cfg.getString(TennetSourceConfig.PRICE_LADDER_TOPIC)
     val url = cfg.getString(TennetSourceConfig.URL)
     val zoneId = ZoneId.of("Europe/Amsterdam")
     val dayahead = Duration.parse("P1D")
@@ -19,8 +20,10 @@ object TennetSourceTypes {
     val bidLadder = SourceType(SourceName.BIDLADDER_NAME.toString, bidLadderTopic, url, zoneId)
     val bidladderTotal = SourceType(SourceName.BIDLADDER_TOTAL_NAME.toString, bidLaddertotalTopic, url, zoneId)
     val imbalancePrice = SourceType(SourceName.IMBALANCE_PRICE_NAME.toString, settlementPriceTopic, url, zoneId)
+    val priceLadder = SourceType(SourceName.PRICE_LADDER_NAME.toString, priceLadderTopic, url, zoneId)
 
-    List[SourceType](balanceDelta, bidLadder, bidladderTotal, imbalancePrice)
+
+    List[SourceType](balanceDelta, bidLadder, bidladderTotal, imbalancePrice,priceLadder)
   }
 }
 
@@ -32,5 +35,6 @@ object SourceName extends Enumeration {
   val BIDLADDER_NAME = "laddersize15"
   val BIDLADDER_TOTAL_NAME = "laddersizetotal"
   val IMBALANCE_PRICE_NAME = "imbalanceprice"
+  val PRICE_LADDER_NAME = "priceladder"
 }
 

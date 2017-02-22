@@ -151,6 +151,43 @@ object ImbalancePriceSourceRecord {
 }
 
 
+object PriceLadderSourceRecord {
+  val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.priceladder")
+    .field("date", Schema.STRING_SCHEMA)
+    .field("ptu", Schema.INT64_SCHEMA)
+    .field("period_from", Schema.STRING_SCHEMA)
+    .field("period_until", Schema.STRING_SCHEMA)
+    .field("neg_total", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("neg_max", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("neg_100", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("neg_min", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("pos_min", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("pos_100", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("pos_max", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("pos_total", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
+    .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
+    .build()
+
+  def struct(record: PriceLadderTennetRecord) =
+    new Struct(schema)
+      .put("date", record.Date)
+      .put("ptu", record.PTU)
+      .put("period_from", record.PeriodFrom)
+      .put("period_until", record.PeriodUntil)
+      .put("neg_total", record.NegTotal)
+      .put("neg_max", record.MegMax)
+      .put("neg_100", record.Neg100)
+      .put("neg_min", record.NegMin)
+      .put("pos_min", record.PosMin)
+      .put("pos_100", record.Pos100)
+      .put("pos_max", record.PosMax)
+      .put("pos_total", record.PosTotal)
+      .put("generated_at", record.GeneratedAt)
+      .put("ptu_start", record.PtuStart)
+}
+
+
 case class BidLadderTennetRecord(
                             Date: String,
                             PTU: Long,
@@ -221,3 +258,21 @@ case class ImbalancePriceTennetRecord(
                                              PtuStart: Long
                                            ) extends TennetSourceRecord
 
+
+
+case class PriceLadderTennetRecord(
+                                       Date: String,
+                                       PTU: Long,
+                                       PeriodFrom: String,
+                                       PeriodUntil: String,
+                                       NegTotal: Double,
+                                       MegMax: Double,
+                                       Neg100: Double,
+                                       NegMin: Double,
+                                       PosMin: Double,
+                                       Pos100: Double,
+                                       PosMax: Double,
+                                       PosTotal: Double,
+                                       GeneratedAt: Long,
+                                       PtuStart: Long
+                                     ) extends TennetSourceRecord
