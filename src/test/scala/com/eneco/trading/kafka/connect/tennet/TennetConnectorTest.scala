@@ -64,7 +64,7 @@ class TennetConnectorTest extends FunSuite with Matchers with BeforeAndAfterAll 
 
     val srcTypes: Seq[SourceType] = TennetSourceTypes.createSources(cfg)
 
-    assert(srcTypes.size == 4)
+    assert(srcTypes.size == 5)
     assert(srcTypes.count(_.name == "balancedelta2017") == 1)
     assert(srcTypes.count(_.topic == imbTopic) == 1)
   }
