@@ -31,7 +31,7 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
           recs
         case Failure(f) =>
           backoff = backoff.nextFailure()
-          logger.error(s"Error trying to retrieve data. ${f.getMessage}")
+          logger.error(s"Error trying to retrieve data:", f)
           logger.info(s"Backing off. Next poll will be around ${backoff.endTime}")
           List.empty[SourceRecord]
       }
