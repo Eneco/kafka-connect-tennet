@@ -10,9 +10,9 @@ import org.apache.kafka.connect.source.SourceConnector
 import scala.collection.JavaConverters._
 import scala.util.{Failure, Try}
 
-class TennetSourceConnector extends  SourceConnector with StrictLogging {
+class TennetSourceConnector extends SourceConnector with StrictLogging {
 
-  private var configProps : Option[util.Map[String, String]] = None
+  private var configProps: Option[util.Map[String, String]] = None
 
   override def taskClass(): Class[_ <: Task] = classOf[TennetSourceTask]
 
@@ -20,7 +20,7 @@ class TennetSourceConnector extends  SourceConnector with StrictLogging {
     logger.info("Setting task configuration with $maxTasks workers.")
     configProps match {
       case Some(props) => (1 to maxTasks).map(_ => props).toList.asJava
-      case None => throw new ConnectException ("TaskConfigs not properly initialised" )
+      case None => throw new ConnectException("TaskConfigs not properly initialised")
     }
   }
 

@@ -4,6 +4,7 @@ package com.eneco.trading.kafka.connect.tennet
   * Created by andrew@datamountaineer.com on 06/02/2017. 
   * kafka-connect-tennet
   */
+
 import java.time.{Duration, Instant}
 
 class ExponentialBackOff(step: Duration, cap: Duration, iteration: Int = 0, now: () => Instant = Instant.now) {
