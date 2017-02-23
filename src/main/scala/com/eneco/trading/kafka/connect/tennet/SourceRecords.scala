@@ -13,13 +13,13 @@ object BalanceDeltaSourceRecord {
     .field("downward_dispatch", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("reserve_upward_dispatch", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("reserve_downward_dispatch", Schema.OPTIONAL_FLOAT64_SCHEMA)
-    .field("incident_reserve_up_indicator", Schema.OPTIONAL_STRING_SCHEMA)
-    .field("incident_reserve_down_indicator", Schema.OPTIONAL_STRING_SCHEMA)
+    .field("incident_reserve_up_indicator", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("incident_reserve_down_indicator", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("min_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("mid_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("max_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
-    .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
-    .field("value_time", Schema.OPTIONAL_INT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("value_time", Schema.INT64_SCHEMA)
     .build()
 
   def struct(record: BalanceDeltaSourceRecord) =
@@ -59,8 +59,8 @@ object BidLadderSourceRecord {
     .field("rampup_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampup_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("total_rampup_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
-    .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
-    .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
   def struct(record: BidLadderSourceRecord) =
@@ -94,8 +94,8 @@ object BidLadderTotalSourceRecord{
     .field("rampup_60_240", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampup_240_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampup_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
-    .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
-    .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
   def struct(record: BidLadderTotalSourceRecord) =
@@ -129,8 +129,8 @@ object ImbalancePriceSourceRecord{
     .field("take_from_system", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("feed_into_system", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("regulation_state", Schema.OPTIONAL_INT64_SCHEMA)
-    .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
-    .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
   def struct(record: ImbalancePriceSourceRecord) =
@@ -166,8 +166,8 @@ object PriceLadderSourceRecord {
     .field("pos_100", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("pos_max", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("pos_total", Schema.OPTIONAL_FLOAT64_SCHEMA)
-    .field("generated_at", Schema.OPTIONAL_INT64_SCHEMA)
-    .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
   def struct(record: PriceLadderSourceRecord) =
@@ -216,8 +216,8 @@ case class BalanceDeltaSourceRecord(
                             DownwardDispatch: Double,
                             ReserveUpwardDispatch: Double,
                             ReserveDownwardDispatch: Double,
-                            IncidentReserveUpIndicator: String,
-                            IncidentReserveDownIndicator: String,
+                            IncidentReserveUpIndicator: Double,
+                            IncidentReserveDownIndicator: Double,
                             MinPrice: Double,
                             MidPrice: Double,
                             MaxPrice: Double,

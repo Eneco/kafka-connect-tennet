@@ -85,7 +85,7 @@ class TestBalanceDelta extends TestBase {
     records.head.value() shouldBe BalanceDeltaSourceRecord.struct(
       BalanceDeltaSourceRecord(
         1, 665, "11:04",
-        1,2,3,4,5,6,"7","8",9,10,11,
+        1,2,3,4,5,6,7,8,9,10,11,
         EpochMillis("2017-01-01T11:06:00+01:00"),
         EpochMillis("2017-01-01T11:04:00+01:00")
       )
