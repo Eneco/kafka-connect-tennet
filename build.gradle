@@ -1,5 +1,5 @@
 group 'kafka-connect-tennet'
-version '0.1.3'
+version '0.2.0'
 
 apply plugin: 'java'
 apply plugin: 'scala'
