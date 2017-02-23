@@ -19,6 +19,7 @@ case class BidLadderTotalSourceRecordProducer(readers: ServiceProvider, sourceTy
         TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_15_60").getOrElse(0),
         TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_0_15").getOrElse(0),
         TennetHelper.NodeSeqToDouble(record \ "RAMPUP_0_15").getOrElse(0),
+        TennetHelper.NodeSeqToDouble(record \ "RAMPUP_15_60").getOrElse(0),
         TennetHelper.NodeSeqToDouble(record \ "RAMPUP_60_240").getOrElse(0),
         TennetHelper.NodeSeqToDouble(record \ "RAMPUP_240_480").getOrElse(0),
         TennetHelper.NodeSeqToDouble(record \ "RAMPUP_480_").getOrElse(0),

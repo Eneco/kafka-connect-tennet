@@ -91,6 +91,7 @@ object BidLadderTotalSourceRecord{
     .field("rampdown_15_60", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampdown_0_15", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampup_0_15", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("rampup_15_60", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampup_60_240", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampup_240_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("rampup_480", Schema.OPTIONAL_FLOAT64_SCHEMA)
@@ -108,6 +109,7 @@ object BidLadderTotalSourceRecord{
       .put("rampdown_15_60", record.Rampdown_15_60)
       .put("rampdown_0_15", record.Rampdown_0_15)
       .put("rampup_0_15", record.Rampup_0_15)
+      .put("rampup_15_60", record.Rampup_15_60)
       .put("rampup_60_240", record.Rampup_60_240)
       .put("rampup_240_480", record.Rampup_240_480)
       .put("rampup_480", record.Rampup_480)
@@ -160,10 +162,14 @@ object PriceLadderSourceRecord {
     .field("period_until", Schema.STRING_SCHEMA)
     .field("neg_total", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("neg_max", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("neg_600", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("neg_300", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("neg_100", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("neg_min", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("pos_min", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("pos_100", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("pos_300", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("pos_600", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("pos_max", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("pos_total", Schema.OPTIONAL_FLOAT64_SCHEMA)
     .field("generated_at", Schema.INT64_SCHEMA)
@@ -178,10 +184,14 @@ object PriceLadderSourceRecord {
       .put("period_until", record.PeriodUntil)
       .put("neg_total", record.NegTotal)
       .put("neg_max", record.MegMax)
+      .put("neg_600", record.Neg600)
+      .put("neg_300", record.Neg300)
       .put("neg_100", record.Neg100)
       .put("neg_min", record.NegMin)
       .put("pos_min", record.PosMin)
       .put("pos_100", record.Pos100)
+      .put("pos_300", record.Pos300)
+      .put("pos_600", record.Pos600)
       .put("pos_max", record.PosMax)
       .put("pos_total", record.PosTotal)
       .put("generated_at", record.GeneratedAt)
@@ -234,6 +244,7 @@ case class BidLadderTotalSourceRecord(
                                              Rampdown_0_15: Double,
                                              Rampdown_15_60: Double,
                                              Rampup_0_15: Double,
+                                             Rampup_15_60: Double,
                                              Rampup_60_240: Double,
                                              Rampup_240_480: Double,
                                              Rampup_480: Double,
@@ -268,10 +279,14 @@ case class PriceLadderSourceRecord(
                                        PeriodUntil: String,
                                        NegTotal: Double,
                                        MegMax: Double,
+                                       Neg600: Double,
+                                       Neg300: Double,
                                        Neg100: Double,
                                        NegMin: Double,
                                        PosMin: Double,
                                        Pos100: Double,
+                                       Pos300: Double,
+                                       Pos600: Double,
                                        PosMax: Double,
                                        PosTotal: Double,
                                        GeneratedAt: Long,
