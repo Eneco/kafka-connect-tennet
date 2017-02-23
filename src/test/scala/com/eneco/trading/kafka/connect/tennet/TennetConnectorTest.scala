@@ -86,7 +86,7 @@ class TennetConnectorTest extends TestBase {
       override val clock = Clock.systemUTC()
     }
 
-    lazy val tennetXml = TennetImbalanceXml(mockServiceProvider, TestData.balanceDeltaSourceType)
+    lazy val tennetXml = BalanceDeltaSourceRecordProducer(mockServiceProvider, TestData.balanceDeltaSourceType)
     val records: Seq[SourceRecord] = tennetXml.produce
     assert(records.size==30)
   }
@@ -96,10 +96,10 @@ class TennetConnectorTest extends TestBase {
     val resp = req.asString.body
     println(resp)
   }
-  test("Test datelist") {
-       val dayList = TennetHelper.createPrevDaysList(4)
-       dayList should contain (LocalDate.now.plusDays(-4))
-       dayList should contain (LocalDate.now.plusDays(-1))
-       assert(dayList.size==4)
-  }
+//  test("Test datelist") {
+//       val dayList = TennetHelper.createPrevDaysList(4)
+//       dayList should contain (LocalDate.now.plusDays(-4))
+//       dayList should contain (LocalDate.now.plusDays(-1))
+//       assert(dayList.size==4)
+//  }
 }

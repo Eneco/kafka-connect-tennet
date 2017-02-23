@@ -6,16 +6,22 @@ import java.time.format.DateTimeFormatter
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.scalatest.{BeforeAndAfterAll, FunSuite, Matchers}
 
+import scala.collection.mutable
+
 /**
   * Created by jhofman on 22/02/2017.
   */
-class TestBase extends FunSuite with Matchers with BeforeAndAfterAll with StrictLogging{
+class TestBase extends FunSuite with Matchers with BeforeAndAfterAll with StrictLogging {
 
   def EpochMillis(t: String) = ZonedDateTime.parse(t, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant().toEpochMilli
 
   class MockXmlReader extends XmlReader {
     var content : Option[String] = None
-    override def getXml(url: String): Option[String] = content
+    var queries = new mutable.ArrayBuffer[String]()
+    override def getXml(url: String): Option[String] = {
+      queries.append(url)
+      content
+    }
   }
 
   class MockServiceProvider(klock: Clock) extends ServiceProvider {

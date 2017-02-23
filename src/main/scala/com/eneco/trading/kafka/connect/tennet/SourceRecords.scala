@@ -2,12 +2,7 @@ package com.eneco.trading.kafka.connect.tennet
 
 import org.apache.kafka.connect.data.{Schema, SchemaBuilder, Struct}
 
-abstract class TennetSourceRecordBuilder[T <: TennetSourceRecord] {
-  val schema : Schema
-  def struct(record: T) : Struct
-}
-
-object ImbalanceSourceRecord extends TennetSourceRecordBuilder[ImbalanceTennetRecord] {
+object BalanceDeltaSourceRecord {
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalance")
     .field("number", Schema.INT64_SCHEMA)
     .field("sequence_number", Schema.INT64_SCHEMA)
@@ -27,7 +22,7 @@ object ImbalanceSourceRecord extends TennetSourceRecordBuilder[ImbalanceTennetRe
     .field("value_time", Schema.OPTIONAL_INT64_SCHEMA)
     .build()
 
-  def struct(record: ImbalanceTennetRecord) =
+  def struct(record: BalanceDeltaSourceRecord) =
     new Struct(schema)
       .put("number", record.Number)
       .put("sequence_number", record.SequenceNumber)
@@ -50,7 +45,7 @@ object ImbalanceSourceRecord extends TennetSourceRecordBuilder[ImbalanceTennetRe
 
 }
 
-object BidLadderSourceRecord extends TennetSourceRecordBuilder[BidLadderTennetRecord] {
+object BidLadderSourceRecord {
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.bidladder")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
@@ -68,7 +63,7 @@ object BidLadderSourceRecord extends TennetSourceRecordBuilder[BidLadderTennetRe
     .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
     .build()
 
-  def struct(record: BidLadderTennetRecord) =
+  def struct(record: BidLadderSourceRecord) =
     new Struct(schema)
       .put("date", record.Date)
       .put("ptu", record.PTU)
@@ -86,7 +81,7 @@ object BidLadderSourceRecord extends TennetSourceRecordBuilder[BidLadderTennetRe
       .put("ptu_start", record.PtuStart)
 }
 
-object BidLadderTotalSourceRecord extends TennetSourceRecordBuilder[BidLadderTotalTennetRecord]{
+object BidLadderTotalSourceRecord{
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.bidladdertotal")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
@@ -103,7 +98,7 @@ object BidLadderTotalSourceRecord extends TennetSourceRecordBuilder[BidLadderTot
     .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
     .build()
 
-  def struct(record: BidLadderTotalTennetRecord) =
+  def struct(record: BidLadderTotalSourceRecord) =
     new Struct(schema)
       .put("date", record.Date)
       .put("ptu", record.PTU)
@@ -120,7 +115,7 @@ object BidLadderTotalSourceRecord extends TennetSourceRecordBuilder[BidLadderTot
       .put("ptu_start", record.PtuStart)
 }
 
-object ImbalancePriceSourceRecord extends TennetSourceRecordBuilder[ImbalancePriceTennetRecord]{
+object ImbalancePriceSourceRecord{
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalanceprice")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
@@ -138,7 +133,7 @@ object ImbalancePriceSourceRecord extends TennetSourceRecordBuilder[ImbalancePri
     .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
     .build()
 
-  def struct(record: ImbalancePriceTennetRecord) =
+  def struct(record: ImbalancePriceSourceRecord) =
     new Struct(schema)
       .put("date", record.Date)
       .put("ptu", record.PTU)
@@ -157,7 +152,7 @@ object ImbalancePriceSourceRecord extends TennetSourceRecordBuilder[ImbalancePri
 }
 
 
-object PriceLadderSourceRecord extends TennetSourceRecordBuilder[PriceLadderTennetRecord]{
+object PriceLadderSourceRecord {
   val schema = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.priceladder")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
@@ -175,7 +170,7 @@ object PriceLadderSourceRecord extends TennetSourceRecordBuilder[PriceLadderTenn
     .field("ptu_start", Schema.OPTIONAL_INT64_SCHEMA)
     .build()
 
-  def struct(record: PriceLadderTennetRecord) =
+  def struct(record: PriceLadderSourceRecord) =
     new Struct(schema)
       .put("date", record.Date)
       .put("ptu", record.PTU)
@@ -194,7 +189,7 @@ object PriceLadderSourceRecord extends TennetSourceRecordBuilder[PriceLadderTenn
 }
 
 
-case class BidLadderTennetRecord(
+case class BidLadderSourceRecord(
                             Date: String,
                             PTU: Long,
                             PeriodFrom: String,
@@ -209,9 +204,9 @@ case class BidLadderTennetRecord(
                             TotalRampUpRequired: Double,
                             GeneratedAt: Long,
                             PtuStart: Long
-                          ) extends TennetSourceRecord
+                          )
 
-case class ImbalanceTennetRecord(
+case class BalanceDeltaSourceRecord(
                             Number: Long,
                             SequenceNumber: Long,
                             Time: String,
@@ -228,9 +223,9 @@ case class ImbalanceTennetRecord(
                             MaxPrice: Double,
                             GeneratedAt: Long,
                             ValueTime: Long
-                          ) extends TennetSourceRecord
+                          )
 
-case class BidLadderTotalTennetRecord(
+case class BidLadderTotalSourceRecord(
                                              Date: String,
                                              PTU: Long,
                                              PeriodFrom: String,
@@ -244,10 +239,10 @@ case class BidLadderTotalTennetRecord(
                                              Rampup_480: Double,
                                              GeneratedAt: Long,
                                              PtuStart: Long
-                                           ) extends TennetSourceRecord
+                                           )
 
 
-case class ImbalancePriceTennetRecord(
+case class ImbalancePriceSourceRecord(
                                              Date: String,
                                              PTU: Long,
                                              PeriodFrom: String,
@@ -262,11 +257,11 @@ case class ImbalancePriceTennetRecord(
                                              RegulationState: Long,
                                              GeneratedAt: Long,
                                              PtuStart: Long
-                                           ) extends TennetSourceRecord
+                                           )
 
 
 
-case class PriceLadderTennetRecord(
+case class PriceLadderSourceRecord(
                                        Date: String,
                                        PTU: Long,
                                        PeriodFrom: String,
@@ -281,4 +276,4 @@ case class PriceLadderTennetRecord(
                                        PosTotal: Double,
                                        GeneratedAt: Long,
                                        PtuStart: Long
-                                     ) extends TennetSourceRecord
+                                     )
