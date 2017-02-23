@@ -4,14 +4,14 @@ import com.typesafe.scalalogging.slf4j.StrictLogging
 
 import scala.xml.Node
 
-case class TennetBidladderXml(readers: ServiceProvider, sourceType: SourceType)
+case class BidLadderSourceRecordProducer(readers: ServiceProvider, sourceType: SourceType)
   extends SourceRecordProducer(readers, sourceType) with StrictLogging {
 
   override def schema = BidLadderSourceRecord.schema
 
   def mapRecord(record: Node, generatedAt: Long): Object = {
     BidLadderSourceRecord.struct(
-      BidLadderTennetRecord(
+      BidLadderSourceRecord(
         (record \ "DATE").text.toString,
         (record \ "PTU").text.toInt,
         (record \ "PERIOD_FROM").text.toString,

@@ -47,11 +47,11 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
 
   def newProducer(sourceType: SourceType) : SourceRecordProducer = {
     sourceType.name match {
-      case SourceName.BALANCE_DELTA_NAME => TennetImbalanceXml(serviceProvider, sourceType)
-      case SourceName.BIDLADDER_NAME => TennetBidladderXml(serviceProvider, sourceType)
-      case SourceName.BIDLADDER_TOTAL_NAME => TennetBidladderTotalXml(serviceProvider, sourceType)
-      case SourceName.IMBALANCE_PRICE_NAME => TennetImbalancePriceXml(serviceProvider, sourceType)
-      case SourceName.PRICE_LADDER_NAME => PriceLadderXml(serviceProvider, sourceType)
+      case SourceName.BALANCE_DELTA_NAME => BalanceDeltaSourceRecordProducer(serviceProvider, sourceType)
+      case SourceName.BID_LADDER_NAME => BidLadderSourceRecordProducer(serviceProvider, sourceType)
+      case SourceName.BID_LADDER_TOTAL_NAME => BidLadderTotalSourceRecordProducer(serviceProvider, sourceType)
+      case SourceName.IMBALANCE_PRICE_NAME => ImbalancePriceSourceRecordProducer(serviceProvider, sourceType)
+      case SourceName.PRICE_LADDER_NAME => PriceLadderSourceRecordProducer(serviceProvider, sourceType)
       case _ => throw new RuntimeException(s"Unkown sourceType: $sourceType")
     }
   }

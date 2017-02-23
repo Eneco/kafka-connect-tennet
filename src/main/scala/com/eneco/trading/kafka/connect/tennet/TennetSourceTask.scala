@@ -1,7 +1,6 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.util
-import java.util.TimerTask
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.kafka.connect.source.{SourceRecord, SourceTask}
@@ -10,9 +9,8 @@ import scala.collection.JavaConversions._
 import scala.collection.mutable
 
 class TennetSourceTask extends SourceTask with StrictLogging {
-  private val counter = mutable.Map.empty[String, Long]
   private var poller: Option[TennetSourcePoller] = None
-  private var timestamp: Long = 0
+  private val progressCounter = new ProgressCounter(60000)
 
   override def stop(): Unit = {
     logger.info("Stopping Tennet SourceTask.")
@@ -34,9 +32,15 @@ class TennetSourceTask extends SourceTask with StrictLogging {
       case _ => throw new RuntimeException("Polling before task started")
     }
 
-    countRecords(records)
+    progressCounter.countRecords(records)
     records
   }
+
+}
+
+class ProgressCounter(periodMs: Int) extends StrictLogging{
+  private val counter = mutable.Map.empty[String, Long]
+  private var timestamp: Long = 0
 
   def countRecords(records: util.List[SourceRecord]): Unit = {
     records.foreach(r => counter.put(r.topic(), counter.getOrElse(r.topic(), 0L) + 1L))

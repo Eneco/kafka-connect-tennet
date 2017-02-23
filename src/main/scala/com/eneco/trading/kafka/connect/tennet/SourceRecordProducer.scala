@@ -1,30 +1,20 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.time.format.DateTimeFormatter
-import java.time.{Clock, Instant, LocalDate}
+import java.time.{Instant, LocalDate}
 import java.util
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.commons.codec.digest.DigestUtils
 import org.apache.kafka.connect.source.SourceRecord
-import org.apache.kafka.connect.storage.OffsetStorageReader
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Stream.Empty
 import scala.xml.Node
 import org.apache.kafka.connect.data.Schema
 
-abstract class TennetSourceRecord
+import scala.util.{Success, Try, Failure}
 
-trait XmlReader {
-  def getXml(url: String): Option[String]
-}
-
-trait ServiceProvider {
-  val storageReader: OffsetStorageReader
-  val xmlReader: XmlReader
-  val clock: Clock
-}
 
 abstract class SourceRecordProducer(services: ServiceProvider, sourceType: SourceType) extends StrictLogging {
 
@@ -39,9 +29,10 @@ abstract class SourceRecordProducer(services: ServiceProvider, sourceType: Sourc
   }
 
   def produce : Seq[SourceRecord] = {
-    val dates = List.range(sourceType.backwardDays, sourceType.forwardDays + 1)
+    val dates = List.range(- sourceType.backwardDays, sourceType.forwardDays + 1)
       .map(n => LocalDate.now(services.clock).plusDays(n))
       .map(DateTimeFormatter.ofPattern("yyyyMMdd").format(_))
+    logger.trace(s"Querying dates: $dates")
 
     truncateOffsets(date => dates.contains(date))
 
@@ -56,18 +47,18 @@ abstract class SourceRecordProducer(services: ServiceProvider, sourceType: Sourc
       case Some(body) => {
         val hash = DigestUtils.sha256Hex(body)
 
-        if (hash == getOffset(date)) {
-          Empty
-        } else {
-          setOffset(date, hash)
-          (scala.xml.XML.loadString(body) \\ "RECORD")
-            .map(r =>
-              new SourceRecord(
-                sourcePartition,
-                getOffsets.asJava,
-                sourceType.topic,
-                schema,
-                mapRecord(r, generatedAt)))
+        Try(scala.xml.XML.loadString(body) \\ "Record") match {
+          case Success(records) if hash != getOffset(date) => {
+            setOffset(date, hash)
+            records.map(r => new SourceRecord(
+              sourcePartition,
+              getOffsets.asJava,
+              sourceType.topic,
+              schema,
+              mapRecord(r, generatedAt)))
+          }
+          case Failure(e) => logger.warn("Failed to convert XML", e); Empty
+          case _ => Empty
         }
       }
       case _ => Empty
@@ -79,6 +70,7 @@ abstract class SourceRecordProducer(services: ServiceProvider, sourceType: Sourc
   def setOffset(key: String, offset: String) = {
     offsetCache = Some(getOffsets ++ Map(key -> offset))
     logger.trace(s"Set offset $key -> $offset")
+
   }
 
   def getOffset(key: String) = {
@@ -89,7 +81,7 @@ abstract class SourceRecordProducer(services: ServiceProvider, sourceType: Sourc
 
   def truncateOffsets(filter: (String) => Boolean) = {
     offsetCache = Some(getOffsets.filterKeys(filter(_)))
-    logger.trace(s"Truncated offsets ${offsetCache.get}")
+    logger.trace(s"Truncated offsets ${getOffsets}")
   }
 
   def getOffsets : Map[String, String] = {

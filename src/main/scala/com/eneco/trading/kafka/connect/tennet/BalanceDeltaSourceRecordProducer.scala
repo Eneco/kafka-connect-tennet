@@ -7,14 +7,15 @@ import org.apache.kafka.connect.source.SourceRecord
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Stream.Empty
+import scala.util.{Try, Success, Failure}
 import scala.xml.Node
 
-case class TennetImbalanceXml(services: ServiceProvider, sourceType: SourceType)
+case class BalanceDeltaSourceRecordProducer(services: ServiceProvider, sourceType: SourceType)
   extends SourceRecordProducer(services, sourceType) with StrictLogging{
 
   val OFFSET_MAX_MILLIS = 60 * 60 * 1000;
 
-  override def schema = ImbalanceSourceRecord.schema
+  override def schema = BalanceDeltaSourceRecord.schema
 
   override def produce : Seq[SourceRecord] = {
     val url = sourceType.baseUrl.concat(s"${sourceType.name}/balans-delta.xml")
@@ -22,9 +23,12 @@ case class TennetImbalanceXml(services: ServiceProvider, sourceType: SourceType)
     services.xmlReader.getXml(url) match {
       case Some(body) => {
         val generatedAt = Instant.now(services.clock).toEpochMilli
-        val records = (scala.xml.XML.loadString(body) \\ "RECORD")
-          .map(mapRecord(_, generatedAt))
-          .filter(r => getOffset(r.ValueTime.toString()) == "")
+        val records = Try(scala.xml.XML.loadString(body) \\ "RECORD") match {
+          case Success(records) => records.map(mapRecord(_, generatedAt))
+            .filter(r => getOffset(r.ValueTime.toString()) == "")
+          case Failure(e) => logger.warn("Failed to load XML", e); Empty
+        }
+
 
         if (!records.isEmpty) {
           val newestValueTime = records.maxBy(_.ValueTime).ValueTime
@@ -38,7 +42,7 @@ case class TennetImbalanceXml(services: ServiceProvider, sourceType: SourceType)
             getOffsets.asJava,
             sourceType.topic,
             schema,
-            ImbalanceSourceRecord.struct(r))
+            BalanceDeltaSourceRecord.struct(r))
         })
 
       }
@@ -46,8 +50,8 @@ case class TennetImbalanceXml(services: ServiceProvider, sourceType: SourceType)
     }
   }
 
-  override def mapRecord(record: Node, generatedAt: Long): ImbalanceTennetRecord = {
-    ImbalanceTennetRecord(
+  override def mapRecord(record: Node, generatedAt: Long): BalanceDeltaSourceRecord = {
+    BalanceDeltaSourceRecord(
       (record \ "NUMBER").text.toInt,
       (record \ "SEQUENCE_NUMBER").text.toInt,
       (record \ "TIME").text,

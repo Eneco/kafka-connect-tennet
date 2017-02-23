@@ -12,7 +12,7 @@ class TestBalanceDelta extends TestBase {
 
   test("Balance Delta no records") {
     val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
-    val uut = TennetImbalanceXml(mock, sourceType)
+    val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = None
     uut.produce.size shouldBe 0
@@ -20,7 +20,7 @@ class TestBalanceDelta extends TestBase {
 
   test("Balance Delta offset tracking") {
     val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
-    val uut = TennetImbalanceXml(mock, sourceType)
+    val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = Some(xml1)
     uut.produce.size shouldBe 2
@@ -38,7 +38,7 @@ class TestBalanceDelta extends TestBase {
 
   test("Balance Delta sets topic correctly") {
     val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
-    def uut(topic: String) = TennetImbalanceXml(
+    def uut(topic: String) = BalanceDeltaSourceRecordProducer(
       mock,
       SourceType(SourceName.BALANCE_DELTA_NAME,
         topic, "", ZoneId.of("Europe/Amsterdam"), 0, 0)
@@ -51,7 +51,7 @@ class TestBalanceDelta extends TestBase {
 
   test("Balance Delta sets sourcePartition correctly") {
     val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
-    val uut = TennetImbalanceXml(mock, sourceType)
+    val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = Some(xml1)
     val records = uut.produce
@@ -61,7 +61,7 @@ class TestBalanceDelta extends TestBase {
 
   test("Balance Delta sets sourceOffset correctly") {
     val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
-    val uut = TennetImbalanceXml(mock, sourceType)
+    val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = Some(xml1)
     val records = uut.produce
@@ -78,18 +78,26 @@ class TestBalanceDelta extends TestBase {
 
   test("Balance Delta make records correctly") {
     val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
-    val uut = TennetImbalanceXml(mock, sourceType)
+    val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = Some(xml1)
     val records = uut.produce
-    records.head.value() shouldBe ImbalanceSourceRecord.struct(
-      ImbalanceTennetRecord(
+    records.head.value() shouldBe BalanceDeltaSourceRecord.struct(
+      BalanceDeltaSourceRecord(
         1, 665, "11:04",
         1,2,3,4,5,6,"7","8",9,10,11,
         EpochMillis("2017-01-01T11:06:00+01:00"),
         EpochMillis("2017-01-01T11:04:00+01:00")
       )
     )
+  }
+
+  test("Balance Delta should handle bad xml") {
+    val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
+    val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
+
+    mock.mockXmlReader.content = Some("Not xml")
+    uut.produce.size shouldBe 0
   }
 
   val xml1 =
