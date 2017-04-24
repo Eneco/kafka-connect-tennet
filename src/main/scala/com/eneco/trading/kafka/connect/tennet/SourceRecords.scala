@@ -27,19 +27,19 @@ object BalanceDeltaSourceRecord {
       .put("number", record.Number)
       .put("sequence_number", record.SequenceNumber)
       .put("time", record.Time)
-      .put("igcccontribution_up", record.IgcccontributionUp)
-      .put("igcccontribution_down", record.IgcccontributionDown)
-      .put("upward_dispatch", record.UpwardDispatch)
-      .put("downward_dispatch", record.DownwardDispatch)
-      .put("reserve_upward_dispatch", record.ReserveUpwardDispatch)
-      .put("reserve_downward_dispatch", record.ReserveDownwardDispatch)
-      .put("incident_reserve_up_indicator", record.IncidentReserveUpIndicator)
-      .put("incident_reserve_down_indicator", record.IncidentReserveUpIndicator)
-      .put("reserve_upward_dispatch", record.ReserveUpwardDispatch)
-      .put("reserve_downward_dispatch", record.ReserveDownwardDispatch)
-      .put("min_price", record.MinPrice)
-      .put("mid_price", record.MidPrice)
-      .put("max_price", record.MaxPrice)
+      .put("igcccontribution_up", record.IgcccontributionUp.getOrElse(null))
+      .put("igcccontribution_down", record.IgcccontributionDown.getOrElse(null))
+      .put("upward_dispatch", record.UpwardDispatch.getOrElse(null))
+      .put("downward_dispatch", record.DownwardDispatch.getOrElse(null))
+      .put("reserve_upward_dispatch", record.ReserveUpwardDispatch.getOrElse(null))
+      .put("reserve_downward_dispatch", record.ReserveDownwardDispatch.getOrElse(null))
+      .put("incident_reserve_up_indicator", record.IncidentReserveUpIndicator.getOrElse(null))
+      .put("incident_reserve_down_indicator", record.IncidentReserveUpIndicator.getOrElse(null))
+      .put("reserve_upward_dispatch", record.ReserveUpwardDispatch.getOrElse(null))
+      .put("reserve_downward_dispatch", record.ReserveDownwardDispatch.getOrElse(null))
+      .put("min_price", record.MinPrice.getOrElse(null))
+      .put("mid_price", record.MidPrice.getOrElse(null))
+      .put("max_price", record.MaxPrice.getOrElse(null))
       .put("generated_at", record.GeneratedAt)
       .put("value_time", record.ValueTime)
 
@@ -69,14 +69,14 @@ object BidLadderSourceRecord {
       .put("ptu", record.PTU)
       .put("period_from", record.PeriodFrom)
       .put("period_until", record.PeriodUntil)
-      .put("total_rampdown_required", record.TotalRampDownRequired)
-      .put("rampdown_required", record.RampDownRequired)
-      .put("rampdown_reserve", record.RampDownReserve)
-      .put("rampdown_power", record.RampDownPower)
-      .put("rampup_power", record.RampUpPower)
-      .put("rampup_reserve", record.RampUpReserve)
-      .put("rampup_required", record.RampUpRequired)
-      .put("total_rampup_required", record.TotalRampUpRequired)
+      .put("total_rampdown_required", record.TotalRampDownRequired.getOrElse(null))
+      .put("rampdown_required", record.RampDownRequired.getOrElse(null))
+      .put("rampdown_reserve", record.RampDownReserve.getOrElse(null))
+      .put("rampdown_power", record.RampDownPower.getOrElse(null))
+      .put("rampup_power", record.RampUpPower.getOrElse(null))
+      .put("rampup_reserve", record.RampUpReserve.getOrElse(null))
+      .put("rampup_required", record.RampUpRequired.getOrElse(null))
+      .put("total_rampup_required", record.TotalRampUpRequired.getOrElse(null))
       .put("generated_at", record.GeneratedAt)
       .put("ptu_start", record.PtuStart)
 }
@@ -105,14 +105,14 @@ object BidLadderTotalSourceRecord{
       .put("ptu", record.PTU)
       .put("period_from", record.PeriodFrom)
       .put("period_until", record.PeriodUntil)
-      .put("rampdown_60", record.Rampdown_60)
-      .put("rampdown_15_60", record.Rampdown_15_60)
-      .put("rampdown_0_15", record.Rampdown_0_15)
-      .put("rampup_0_15", record.Rampup_0_15)
-      .put("rampup_15_60", record.Rampup_15_60)
-      .put("rampup_60_240", record.Rampup_60_240)
-      .put("rampup_240_480", record.Rampup_240_480)
-      .put("rampup_480", record.Rampup_480)
+      .put("rampdown_60", record.Rampdown_60.getOrElse(null))
+      .put("rampdown_15_60", record.Rampdown_15_60.getOrElse(null))
+      .put("rampdown_0_15", record.Rampdown_0_15.getOrElse(null))
+      .put("rampup_0_15", record.Rampup_0_15.getOrElse(null))
+      .put("rampup_15_60", record.Rampup_15_60.getOrElse(null))
+      .put("rampup_60_240", record.Rampup_60_240.getOrElse(null))
+      .put("rampup_240_480", record.Rampup_240_480.getOrElse(null))
+      .put("rampup_480", record.Rampup_480.getOrElse(null))
       .put("generated_at", record.GeneratedAt)
       .put("ptu_start", record.PtuStart)
 }
@@ -141,13 +141,13 @@ object ImbalancePriceSourceRecord{
       .put("ptu", record.PTU)
       .put("period_from", record.PeriodFrom)
       .put("period_until", record.PeriodUntil)
-      .put("upward_incident_reserve", record.UpwardIncidentReserve)
-      .put("downward_incident_reserve", record.DownwardIncidentReserve)
-      .put("upward_dispatch", record.UpwardDispatch)
-      .put("downward_dispatch", record.DownwardDispatch)
-      .put("incentive_component", record.IncentiveComponent)
-      .put("take_from_system", record.TakeFromSystem)
-      .put("feed_into_system", record.FeedIntoSystem)
+      .put("upward_incident_reserve", record.UpwardIncidentReserve.getOrElse(null))
+      .put("downward_incident_reserve", record.DownwardIncidentReserve.getOrElse(null))
+      .put("upward_dispatch", record.UpwardDispatch.getOrElse(null))
+      .put("downward_dispatch", record.DownwardDispatch.getOrElse(null))
+      .put("incentive_component", record.IncentiveComponent.getOrElse(null))
+      .put("take_from_system", record.TakeFromSystem.getOrElse(null))
+      .put("feed_into_system", record.FeedIntoSystem.getOrElse(null))
       .put("regulation_state", record.RegulationState)
       .put("generated_at", record.GeneratedAt)
       .put("ptu_start", record.PtuStart)
@@ -182,18 +182,18 @@ object PriceLadderSourceRecord {
       .put("ptu", record.PTU)
       .put("period_from", record.PeriodFrom)
       .put("period_until", record.PeriodUntil)
-      .put("neg_total", record.NegTotal)
-      .put("neg_max", record.MegMax)
-      .put("neg_600", record.Neg600)
-      .put("neg_300", record.Neg300)
-      .put("neg_100", record.Neg100)
-      .put("neg_min", record.NegMin)
-      .put("pos_min", record.PosMin)
-      .put("pos_100", record.Pos100)
-      .put("pos_300", record.Pos300)
-      .put("pos_600", record.Pos600)
-      .put("pos_max", record.PosMax)
-      .put("pos_total", record.PosTotal)
+      .put("neg_total", record.NegTotal.getOrElse(null))
+      .put("neg_max", record.MegMax.getOrElse(null))
+      .put("neg_600", record.Neg600.getOrElse(null))
+      .put("neg_300", record.Neg300.getOrElse(null))
+      .put("neg_100", record.Neg100.getOrElse(null))
+      .put("neg_min", record.NegMin.getOrElse(null))
+      .put("pos_min", record.PosMin.getOrElse(null))
+      .put("pos_100", record.Pos100.getOrElse(null))
+      .put("pos_300", record.Pos300.getOrElse(null))
+      .put("pos_600", record.Pos600.getOrElse(null))
+      .put("pos_max", record.PosMax.getOrElse(null))
+      .put("pos_total", record.PosTotal.getOrElse(null))
       .put("generated_at", record.GeneratedAt)
       .put("ptu_start", record.PtuStart)
 }
@@ -204,14 +204,14 @@ case class BidLadderSourceRecord(
                             PTU: Long,
                             PeriodFrom: String,
                             PeriodUntil: String,
-                            TotalRampDownRequired: Double,
-                            RampDownRequired: Double,
-                            RampDownReserve: Double,
-                            RampDownPower: Double,
-                            RampUpPower: Double,
-                            RampUpReserve: Double,
-                            RampUpRequired: Double,
-                            TotalRampUpRequired: Double,
+                            TotalRampDownRequired: Option[Double],
+                            RampDownRequired: Option[Double],
+                            RampDownReserve: Option[Double],
+                            RampDownPower: Option[Double],
+                            RampUpPower: Option[Double],
+                            RampUpReserve: Option[Double],
+                            RampUpRequired: Option[Double],
+                            TotalRampUpRequired: Option[Double],
                             GeneratedAt: Long,
                             PtuStart: Long
                           )
@@ -220,17 +220,17 @@ case class BalanceDeltaSourceRecord(
                             Number: Long,
                             SequenceNumber: Long,
                             Time: String,
-                            IgcccontributionUp: Double,
-                            IgcccontributionDown: Double,
-                            UpwardDispatch: Double,
-                            DownwardDispatch: Double,
-                            ReserveUpwardDispatch: Double,
-                            ReserveDownwardDispatch: Double,
-                            IncidentReserveUpIndicator: Double,
-                            IncidentReserveDownIndicator: Double,
-                            MinPrice: Double,
-                            MidPrice: Double,
-                            MaxPrice: Double,
+                            IgcccontributionUp: Option[Double],
+                            IgcccontributionDown: Option[Double],
+                            UpwardDispatch: Option[Double],
+                            DownwardDispatch: Option[Double],
+                            ReserveUpwardDispatch: Option[Double],
+                            ReserveDownwardDispatch: Option[Double],
+                            IncidentReserveUpIndicator: Option[Double],
+                            IncidentReserveDownIndicator: Option[Double],
+                            MinPrice: Option[Double],
+                            MidPrice: Option[Double],
+                            MaxPrice: Option[Double],
                             GeneratedAt: Long,
                             ValueTime: Long
                           )
@@ -240,14 +240,14 @@ case class BidLadderTotalSourceRecord(
                                              PTU: Long,
                                              PeriodFrom: String,
                                              PeriodUntil: String,
-                                             Rampdown_60: Double,
-                                             Rampdown_0_15: Double,
-                                             Rampdown_15_60: Double,
-                                             Rampup_0_15: Double,
-                                             Rampup_15_60: Double,
-                                             Rampup_60_240: Double,
-                                             Rampup_240_480: Double,
-                                             Rampup_480: Double,
+                                             Rampdown_60: Option[Double],
+                                             Rampdown_0_15: Option[Double],
+                                             Rampdown_15_60: Option[Double],
+                                             Rampup_0_15: Option[Double],
+                                             Rampup_15_60: Option[Double],
+                                             Rampup_60_240: Option[Double],
+                                             Rampup_240_480: Option[Double],
+                                             Rampup_480: Option[Double],
                                              GeneratedAt: Long,
                                              PtuStart: Long
                                            )
@@ -258,13 +258,13 @@ case class ImbalancePriceSourceRecord(
                                              PTU: Long,
                                              PeriodFrom: String,
                                              PeriodUntil: String,
-                                             UpwardIncidentReserve: Double,
-                                             DownwardIncidentReserve: Double,
-                                             UpwardDispatch: Double,
-                                             DownwardDispatch: Double,
-                                             IncentiveComponent: Double,
-                                             TakeFromSystem: Double,
-                                             FeedIntoSystem: Double,
+                                             UpwardIncidentReserve: Option[Double],
+                                             DownwardIncidentReserve: Option[Double],
+                                             UpwardDispatch: Option[Double],
+                                             DownwardDispatch: Option[Double],
+                                             IncentiveComponent: Option[Double],
+                                             TakeFromSystem: Option[Double],
+                                             FeedIntoSystem: Option[Double],
                                              RegulationState: Long,
                                              GeneratedAt: Long,
                                              PtuStart: Long
@@ -277,18 +277,18 @@ case class PriceLadderSourceRecord(
                                        PTU: Long,
                                        PeriodFrom: String,
                                        PeriodUntil: String,
-                                       NegTotal: Double,
-                                       MegMax: Double,
-                                       Neg600: Double,
-                                       Neg300: Double,
-                                       Neg100: Double,
-                                       NegMin: Double,
-                                       PosMin: Double,
-                                       Pos100: Double,
-                                       Pos300: Double,
-                                       Pos600: Double,
-                                       PosMax: Double,
-                                       PosTotal: Double,
+                                       NegTotal: Option[Double],
+                                       MegMax: Option[Double],
+                                       Neg600: Option[Double],
+                                       Neg300: Option[Double],
+                                       Neg100: Option[Double],
+                                       NegMin: Option[Double],
+                                       PosMin: Option[Double],
+                                       Pos100: Option[Double],
+                                       Pos300: Option[Double],
+                                       Pos600: Option[Double],
+                                       PosMax: Option[Double],
+                                       PosTotal: Option[Double],
                                        GeneratedAt: Long,
                                        PtuStart: Long
                                      )

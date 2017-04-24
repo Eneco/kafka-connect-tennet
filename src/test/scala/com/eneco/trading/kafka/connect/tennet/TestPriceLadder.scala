@@ -19,7 +19,7 @@ class TestPriceLadder extends TestBase {
         "2017-02-22T00:00:00", 1,
         "00:00",
         "00:15",
-        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+        1, 2, 3, 4, None, None, 7, 8, 9, 10, 11, 12,
         EpochMillis("2017-01-01T11:06:00+01:00"),
         EpochMillis("2017-02-22T00:00:00+01:00")
       )
@@ -38,8 +38,7 @@ class TestPriceLadder extends TestBase {
       |    <NEG_MAX>2</NEG_MAX>
       |    <NEG_600>3</NEG_600>
       |    <NEG_300>4</NEG_300>
-      |    <NEG_100>5</NEG_100>
-      |    <NEG_MIN>6</NEG_MIN>
+      |    <NEG_100/>
       |    <POS_MIN>7</POS_MIN>
       |    <POS_100>8</POS_100>
       |    <POS_300>9</POS_300>

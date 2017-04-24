@@ -85,7 +85,7 @@ class TestBalanceDelta extends TestBase {
     records.head.value() shouldBe BalanceDeltaSourceRecord.struct(
       BalanceDeltaSourceRecord(
         1, 665, "11:04",
-        1,2,3,4,5,6,7,8,9,10,11,
+        1,2,None,4,5,6,7,None,9,10,11,
         EpochMillis("2017-01-01T11:06:00+01:00"),
         EpochMillis("2017-01-01T11:04:00+01:00")
       )
@@ -109,12 +109,11 @@ class TestBalanceDelta extends TestBase {
       |    <TIME>11:04</TIME>
       |    <IGCCCONTRIBUTION_UP>1</IGCCCONTRIBUTION_UP>
       |    <IGCCCONTRIBUTION_DOWN>2</IGCCCONTRIBUTION_DOWN>
-      |    <UPWARD_DISPATCH>3</UPWARD_DISPATCH>
       |    <DOWNWARD_DISPATCH>4</DOWNWARD_DISPATCH>
       |    <RESERVE_UPWARD_DISPATCH>5</RESERVE_UPWARD_DISPATCH>
       |    <RESERVE_DOWNWARD_DISPATCH>6</RESERVE_DOWNWARD_DISPATCH>
       |    <INCIDENT_RESERVE_UP_INDICATOR>7</INCIDENT_RESERVE_UP_INDICATOR>
-      |    <INCIDENT_RESERVE_DOWN_INDICATOR>8</INCIDENT_RESERVE_DOWN_INDICATOR>
+      |    <INCIDENT_RESERVE_DOWN_INDICATOR/>
       |    <MIN_PRICE>9</MIN_PRICE>
       |    <MID_PRICE>10</MID_PRICE>
       |    <MAX_PRICE>11</MAX_PRICE>
