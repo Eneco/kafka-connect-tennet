@@ -105,7 +105,7 @@ class TestImbalancePrice extends TestBase {
         "2017-02-22T00:00:00", 1,
         "00:00",
         "00:15",
-        0, 1, 2, 3, 4, 5, 6, 7,
+        None, 1, 2, 3, 4, None, 6, 7,
         EpochMillis("2017-01-01T11:06:00+01:00"),
         EpochMillis("2017-02-22T00:00:00+01:00")
       )
@@ -133,7 +133,6 @@ class TestImbalancePrice extends TestBase {
       |    <UPWARD_DISPATCH>2</UPWARD_DISPATCH>
       |    <DOWNWARD_DISPATCH>3</DOWNWARD_DISPATCH>
       |    <INCENTIVE_COMPONENT>4</INCENTIVE_COMPONENT>
-      |    <TAKE_FROM_SYSTEM>5</TAKE_FROM_SYSTEM>
       |    <FEED_INTO_SYSTEM>6</FEED_INTO_SYSTEM>
       |    <REGULATION_STATE>7</REGULATION_STATE>
       |  </Record>

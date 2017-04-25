@@ -19,7 +19,7 @@ class TestBidLadderTotal extends TestBase {
         "2017-02-24T00:00:00", 1,
         "00:00",
         "00:15",
-        1, 2, 3, 4, 5, 6, 7, 8,
+        1, 2, None, 4, 5, 6, None, 8,
         EpochMillis("2017-01-01T11:06:00+01:00"),
         EpochMillis("2017-02-24T00:00:00+01:00")
       )
@@ -36,11 +36,10 @@ class TestBidLadderTotal extends TestBase {
       |    <PERIOD_UNTIL>00:15</PERIOD_UNTIL>
       |    <RAMPDOWN_60_>1</RAMPDOWN_60_>
       |    <RAMPDOWN_15_60>2</RAMPDOWN_15_60>
-      |    <RAMPDOWN_0_15>3</RAMPDOWN_0_15>
+      |    <RAMPDOWN_0_15/>
       |    <RAMPUP_0_15>4</RAMPUP_0_15>
       |    <RAMPUP_15_60>5</RAMPUP_15_60>
       |    <RAMPUP_60_240>6</RAMPUP_60_240>
-      |    <RAMPUP_240_480>7</RAMPUP_240_480>
       |    <RAMPUP_480_>8</RAMPUP_480_>
       |  </Record>
       |</LadderSize>
