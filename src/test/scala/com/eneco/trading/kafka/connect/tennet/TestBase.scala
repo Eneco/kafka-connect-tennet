@@ -16,6 +16,7 @@ class TestBase extends FunSuite with Matchers with BeforeAndAfterAll with Strict
   def EpochMillis(t: String) = ZonedDateTime.parse(t, DateTimeFormatter.ISO_OFFSET_DATE_TIME).toInstant().toEpochMilli
 
   implicit def DoubleToOptionalFloat64(d: Double) : Option[Double] = Some(d)
+  implicit def IntToOptionalFloat64(d: Int) : Option[Double] = Some(d)
 
   class MockXmlReader extends XmlReader {
     var content : Option[String] = None

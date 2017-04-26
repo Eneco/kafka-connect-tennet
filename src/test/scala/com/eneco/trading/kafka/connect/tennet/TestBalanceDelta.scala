@@ -10,6 +10,14 @@ import scala.collection.JavaConverters._
 class TestBalanceDelta extends TestBase {
   val sourceType = SourceType(SourceName.BALANCE_DELTA_NAME, "topic", "", ZoneId.of("Europe/Amsterdam"), 0, 0)
 
+  test("Balance Delta record survives non-numeric values"){
+    val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
+    val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
+
+    mock.mockXmlReader.content = Some(xml4)
+    uut.produce.size shouldBe 1
+  }
+
   test("Balance Delta no records") {
     val mock = new MockServiceProvider("2017-01-01T11:06:00+01:00")
     val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
@@ -185,6 +193,26 @@ class TestBalanceDelta extends TestBase {
       |    <INCIDENT_RESERVE_UP_INDICATOR>0</INCIDENT_RESERVE_UP_INDICATOR>
       |    <INCIDENT_RESERVE_DOWN_INDICATOR>0</INCIDENT_RESERVE_DOWN_INDICATOR>
       |    <MID_PRICE>34.15</MID_PRICE>
+      |  </RECORD>
+      |</BALANCE_DELTA>
+    """.stripMargin
+
+  val xml4 =
+    """
+      |<BALANCE_DELTA xmlns="">
+      |  <RECORD>
+      |    <NUMBER>1</NUMBER>
+      |    <SEQUENCE_NUMBER>727</SEQUENCE_NUMBER>
+      |    <TIME>12:06</TIME>
+      |    <IGCCCONTRIBUTION_UP>270</IGCCCONTRIBUTION_UP>
+      |    <IGCCCONTRIBUTION_DOWN>0</IGCCCONTRIBUTION_DOWN>
+      |    <UPWARD_DISPATCH>0</UPWARD_DISPATCH>
+      |    <DOWNWARD_DISPATCH>0</DOWNWARD_DISPATCH>
+      |    <RESERVE_UPWARD_DISPATCH>0</RESERVE_UPWARD_DISPATCH>
+      |    <RESERVE_DOWNWARD_DISPATCH>0</RESERVE_DOWNWARD_DISPATCH>
+      |    <INCIDENT_RESERVE_UP_INDICATOR>0</INCIDENT_RESERVE_UP_INDICATOR>
+      |    <INCIDENT_RESERVE_DOWN_INDICATOR>0</INCIDENT_RESERVE_DOWN_INDICATOR>
+      |    <MID_PRICE>*</MID_PRICE>
       |  </RECORD>
       |</BALANCE_DELTA>
     """.stripMargin
