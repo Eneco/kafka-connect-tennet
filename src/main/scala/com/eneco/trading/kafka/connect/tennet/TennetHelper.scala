@@ -5,6 +5,7 @@ import java.time.{Clock, LocalDate}
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import org.apache.kafka.connect.storage.OffsetStorageReader
 
+import scala.util.{ Try, Success, Failure }
 import scala.xml.NodeSeq
 import scalaj.http.Http
 
@@ -34,14 +35,14 @@ object HttpXmlReader extends XmlReader with StrictLogging {
 
 object TennetHelper extends StrictLogging {
 
-  def NodeSeqToDouble(value: NodeSeq): Option[Double] = if (value.text.nonEmpty) Some(value.text.toDouble) else None
+  def NodeSeqToDouble(value: NodeSeq): Option[Double] = {
+    Try(value.text.toDouble) match {
+      case Success(v) => Some(v);
+      case Failure(e) => None
+    }
+  }
 
-//  def createPrevDaysList(days : Int) =   List.tabulate(days)(n => LocalDate.now.plusDays(-(n+1)))
-//
-//  def createNextDaysList(days : Int) =   List.tabulate(days)(n => LocalDate.now.plusDays((n)))
+  //  def createPrevDaysList(days : Int) =   List.tabulate(days)(n => LocalDate.now.plusDays(-(n+1)))
+  //
+  //  def createNextDaysList(days : Int) =   List.tabulate(days)(n => LocalDate.now.plusDays((n)))
 }
-
-
-
-
-
