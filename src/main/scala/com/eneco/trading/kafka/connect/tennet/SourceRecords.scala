@@ -34,7 +34,7 @@ object BalanceDeltaSourceRecord {
       .put("reserve_upward_dispatch", record.ReserveUpwardDispatch.getOrElse(null))
       .put("reserve_downward_dispatch", record.ReserveDownwardDispatch.getOrElse(null))
       .put("incident_reserve_up_indicator", record.IncidentReserveUpIndicator.getOrElse(null))
-      .put("incident_reserve_down_indicator", record.IncidentReserveUpIndicator.getOrElse(null))
+      .put("incident_reserve_down_indicator", record.IncidentReserveDownIndicator.getOrElse(null))
       .put("reserve_upward_dispatch", record.ReserveUpwardDispatch.getOrElse(null))
       .put("reserve_downward_dispatch", record.ReserveDownwardDispatch.getOrElse(null))
       .put("min_price", record.MinPrice.getOrElse(null))
