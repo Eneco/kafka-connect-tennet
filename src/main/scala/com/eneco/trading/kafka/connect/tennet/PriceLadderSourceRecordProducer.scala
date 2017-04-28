@@ -13,7 +13,7 @@ case class PriceLadderSourceRecordProducer(readers: ServiceProvider, sourceType:
   override def mapRecord(record: Node, generatedAt: Long): Struct = {
     new Struct(schema)
       .put("date", (record \ "DATE").text.toString)
-      .put("ptu", (record \ "PTU").text.toInt)
+      .put("ptu", (record \ "PTU").text.toLong)
       .put("period_from", (record \ "PERIOD_FROM").text.toString)
       .put("period_until", (record \ "PERIOD_UNTIL").text.toString)
       .put("neg_total", TennetHelper.NodeSeqToDouble(record \ "NEG_TOTAL"))

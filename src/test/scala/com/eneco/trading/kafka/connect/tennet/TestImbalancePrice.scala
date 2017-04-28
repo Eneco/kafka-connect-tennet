@@ -3,6 +3,7 @@ package com.eneco.trading.kafka.connect.tennet
 import java.time.ZoneId
 
 import org.apache.commons.codec.digest.DigestUtils
+import org.apache.kafka.connect.data.Struct
 
 import scala.collection.JavaConverters._
 
@@ -99,17 +100,23 @@ class TestImbalancePrice extends TestBase {
     val uut = ImbalancePriceSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = Some(xml1)
+
     val records = uut.produce
-    records.head.value() shouldBe ImbalancePriceSourceRecord.struct(
-      ImbalancePriceSourceRecord(
-        "2017-02-22T00:00:00", 1,
-        "00:00",
-        "00:15",
-        None, 1, 2, 3, 4, None, 6, 7,
-        EpochMillis("2017-01-01T11:06:00+01:00"),
-        EpochMillis("2017-02-22T00:00:00+01:00")
-      )
-    )
+    records.head.value shouldBe new Struct(TennetSourceConfig.SCHEMA_IMBALANCEPRICE)
+      .put("date", "2017-02-22T00:00:00")
+      .put("ptu", 1.toLong)
+      .put("period_from", "00:00")
+      .put("period_until", "00:15")
+      .put("upward_incident_reserve", null)
+      .put("downward_incident_reserve", 1.0)
+      .put("upward_dispatch", 2.0)
+      .put("downward_dispatch", 3.0)
+      .put("incentive_component", 4.0)
+      .put("take_from_system", null)
+      .put("feed_into_system", 6.0)
+      .put("regulation_state",7.toLong)
+      .put("generated_at", EpochMillis("2017-01-01T11:06:00+01:00"))
+      .put("ptu_start", EpochMillis("2017-02-22T00:00:00+01:00"))
   }
 
   test("Imbalance Price should handle bad xml") {

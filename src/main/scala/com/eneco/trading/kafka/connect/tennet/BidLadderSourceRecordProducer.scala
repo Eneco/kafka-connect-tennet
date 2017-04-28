@@ -13,7 +13,7 @@ case class BidLadderSourceRecordProducer(readers: ServiceProvider, sourceType: S
   def mapRecord(record: Node, generatedAt: Long): Struct = {
     new Struct(schema)
       .put("date", (record \ "DATE").text.toString)
-      .put("ptu", (record \ "PTU").text.toInt)
+      .put("ptu", (record \ "PTU").text.toLong)
       .put("period_from", (record \ "PERIOD_FROM").text.toString)
       .put("period_until", (record \ "PERIOD_UNTIL").text.toString)
       .put("total_rampdown_required", TennetHelper.NodeSeqToDouble(record \ "TOTAL_RAMPDOWN_REQUIRED"))

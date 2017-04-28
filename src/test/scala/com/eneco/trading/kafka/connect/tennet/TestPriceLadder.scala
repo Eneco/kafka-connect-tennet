@@ -2,6 +2,8 @@ package com.eneco.trading.kafka.connect.tennet
 
 import java.time.ZoneId
 
+import org.apache.kafka.connect.data.Struct
+
 /**
   * Created by jhofman on 23/02/2017.
   */
@@ -14,16 +16,25 @@ class TestPriceLadder extends TestBase {
 
     mock.mockXmlReader.content = Some(xml1)
     val records = uut.produce
-    records.head.value() shouldBe PriceLadderSourceRecord.struct(
-      PriceLadderSourceRecord(
-        "2017-02-22T00:00:00", 1,
-        "00:00",
-        "00:15",
-        1, 2, 3, 4, None, None, 7, 8, 9, 10, 11, 12,
-        EpochMillis("2017-01-01T11:06:00+01:00"),
-        EpochMillis("2017-02-22T00:00:00+01:00")
-      )
-    )
+    records.head.value shouldBe new Struct(TennetSourceConfig.SCHEMA_PRICELADDER)
+      .put("date", "2017-02-22T00:00:00")
+      .put("ptu", 1.toLong)
+      .put("period_from", "00:00")
+      .put("period_until", "00:15")
+      .put("neg_total", 1.0)
+      .put("neg_max", 2.0)
+      .put("neg_600", 3.0)
+      .put("neg_300", 4.0)
+      .put("neg_100", null)
+      .put("neg_min", null)
+      .put("pos_min", 7.0)
+      .put("pos_100", 8.0)
+      .put("pos_300", 9.0)
+      .put("pos_600", 10.0)
+      .put("pos_max", 11.0)
+      .put("pos_total", 12.0)
+      .put("generated_at", EpochMillis("2017-01-01T11:06:00+01:00"))
+      .put("ptu_start", EpochMillis("2017-02-22T00:00:00+01:00"))
   }
 
   val xml1 =

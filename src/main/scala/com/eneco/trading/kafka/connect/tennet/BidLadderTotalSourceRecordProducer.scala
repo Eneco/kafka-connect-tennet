@@ -13,7 +13,7 @@ case class BidLadderTotalSourceRecordProducer(readers: ServiceProvider, sourceTy
   override def mapRecord(record: Node, generatedAt: Long): Struct  = {
     new Struct(schema)
       .put("date", (record \ "DATE").text.toString)
-      .put("ptu", (record \ "PTU").text.toInt)
+      .put("ptu", (record \ "PTU").text.toLong)
       .put("period_from", (record \ "PERIOD_FROM").text.toString)
       .put("period_until", (record \ "PERIOD_UNTIL").text.toString)
       .put("rampdown_60", TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_60_"))
