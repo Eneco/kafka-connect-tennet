@@ -9,6 +9,7 @@ case class PriceLadderSourceRecordProducer(readers: ServiceProvider, sourceType:
   override def schema = PriceLadderSourceRecord.schema
 
   override def mapRecord(record: Node, generatedAt: Long): Object = {
+    /*
     PriceLadderSourceRecord.struct(
       PriceLadderSourceRecord(
         (record \ "DATE").text.toString,
@@ -31,6 +32,8 @@ case class PriceLadderSourceRecordProducer(readers: ServiceProvider, sourceType:
         epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
       )
     )
+    */
+    null
   }
 
 }

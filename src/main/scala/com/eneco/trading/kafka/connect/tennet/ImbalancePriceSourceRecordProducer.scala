@@ -9,6 +9,7 @@ case class ImbalancePriceSourceRecordProducer(readers: ServiceProvider, sourceTy
   override def schema = ImbalancePriceSourceRecord.schema;
 
   override def mapRecord(record: Node, generatedAt: Long): Object  = {
+    /*
     ImbalancePriceSourceRecord.struct(
       ImbalancePriceSourceRecord(
         (record \ "DATE").text.toString,
@@ -27,6 +28,8 @@ case class ImbalancePriceSourceRecordProducer(readers: ServiceProvider, sourceTy
         epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt)
       )
     )
+    */
+    null
   }
 }
 

@@ -4,6 +4,7 @@ import java.util
 
 import org.apache.kafka.common.config.ConfigDef.{Importance, Type}
 import org.apache.kafka.common.config.{AbstractConfig, ConfigDef}
+import org.apache.kafka.connect.data.{Schema, SchemaBuilder}
 
 // abstraction for configs
 class TennetSourceConfig(props: util.Map[String, String]) extends AbstractConfig(TennetSourceConfig.config, props)
@@ -53,5 +54,41 @@ object TennetSourceConfig {
     .define(REFRESH_RATE, Type.STRING, REFRESH_RATE_DEFAULT, Importance.LOW, REFRESH_RATE_DOC)
     .define(MAX_BACK_OFF, Type.STRING, MAX_BACK_OFF_DEFAULT, Importance.LOW, MAX_BACK_OFF_DOC)
     .define(TIMEZONE, Type.STRING, TIMEZONE_DEFAULT, Importance.HIGH, TIMEZONE_DOC)
+
+  val SCHEMA_IMBALANCE = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalance")
+    .field("number", Schema.INT64_SCHEMA)
+    .field("sequence_number", Schema.INT64_SCHEMA)
+    .field("time", Schema.STRING_SCHEMA)
+    .field("igcccontribution_up", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("igcccontribution_down", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("upward_dispatch", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("downward_dispatch", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("reserve_upward_dispatch", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("reserve_downward_dispatch", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("incident_reserve_up_indicator", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("incident_reserve_down_indicator", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("min_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("mid_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("max_price", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("value_time", Schema.INT64_SCHEMA)
+    .build()
+
+  val SCHEMA_BIDLADDER = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.bidladder")
+    .field("date", Schema.STRING_SCHEMA)
+    .field("ptu", Schema.INT64_SCHEMA)
+    .field("period_from", Schema.STRING_SCHEMA)
+    .field("period_until", Schema.STRING_SCHEMA)
+    .field("total_rampdown_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("rampdown_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("rampdown_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("rampdown_power", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("rampup_power", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("rampup_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("rampup_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("total_rampup_required", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("ptu_start", Schema.INT64_SCHEMA)
+    .build()
 }
 
