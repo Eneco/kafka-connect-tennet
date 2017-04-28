@@ -11,15 +11,15 @@ import org.apache.kafka.connect.source.SourceRecord
 import scala.collection.JavaConverters._
 import scala.collection.immutable.Stream.Empty
 import scala.xml.Node
-import org.apache.kafka.connect.data.Schema
+import org.apache.kafka.connect.data.{Schema, Struct}
 
-import scala.util.{Success, Try, Failure}
+import scala.util.{Failure, Success, Try}
 
 
 abstract class SourceRecordProducer(services: ServiceProvider, sourceType: SourceType) extends StrictLogging {
 
   def schema: Schema
-  def mapRecord(record: Node, generatedAt: Long) : Object
+  def mapRecord(record: Node, generatedAt: Long) : Struct
 
   val epochMillis = EpochMillis(sourceType.timeZone)
   var offsetCache: Option[Map[String, String]] =  None

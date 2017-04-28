@@ -16,7 +16,7 @@ case class BalanceDeltaSourceRecordProducer(services: ServiceProvider, sourceTyp
 
   val OFFSET_MAX_MILLIS = 60 * 60 * 1000;
 
-  override def schema = BalanceDeltaSourceRecord.schema
+  override def schema = TennetSourceConfig.SCHEMA_IMBALANCE
 
   override def produce : Seq[SourceRecord] = {
     val url = sourceType.baseUrl.concat(s"${sourceType.name}/balans-delta.xml")
@@ -26,24 +26,24 @@ case class BalanceDeltaSourceRecordProducer(services: ServiceProvider, sourceTyp
         val generatedAt = Instant.now(services.clock).toEpochMilli
         val records = Try(scala.xml.XML.loadString(body) \\ "RECORD") match {
           case Success(records) => records.map(mapRecord(_, generatedAt))
-            .filter(r => getOffset(r.ValueTime.toString()) == "")
+            .filter(r => getOffset(r.get("value_time").toString()) == "")
           case Failure(e) => logger.warn("Failed to load XML", e); Empty
         }
 
 
         if (!records.isEmpty) {
-          val newestValueTime = records.maxBy(_.ValueTime).ValueTime
+          val newestValueTime = records.map(_.getInt64("value_time")).max
           truncateOffsets(k => k.toLong > newestValueTime - OFFSET_MAX_MILLIS)
         }
 
         records.map(r => {
-          setOffset(r.ValueTime.toString, generatedAt.toString)
+          setOffset(r.get("value_time").toString, generatedAt.toString)
           new SourceRecord(
             sourcePartition,
             getOffsets.asJava,
             sourceType.topic,
             schema,
-            BalanceDeltaSourceRecord.struct(r))
+            r)
         })
 
       }
@@ -51,8 +51,7 @@ case class BalanceDeltaSourceRecordProducer(services: ServiceProvider, sourceTyp
     }
   }
 
-  override def mapRecord(record: Node, generatedAt: Long): BalanceDeltaSourceRecord = {
-
+  override def mapRecord(record: Node, generatedAt: Long): Struct = {
     new Struct(schema)
       .put("number", (record \ "NUMBER").text.toLong)
       .put("sequence_number", (record \ "SEQUENCE_NUMBER").text.toLong)
@@ -70,8 +69,5 @@ case class BalanceDeltaSourceRecordProducer(services: ServiceProvider, sourceTyp
       .put("max_price", TennetHelper.NodeSeqToDouble(record \ "MAX_PRICE"))
       .put("generated_at", generatedAt)
       .put("value_time", epochMillis.fromMinutes(generatedAt, (record \ "TIME").text.toString))
-
-    null
-
   }
 }

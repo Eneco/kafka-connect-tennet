@@ -10,7 +10,7 @@ case class BidLadderSourceRecordProducer(readers: ServiceProvider, sourceType: S
 
   override def schema = TennetSourceConfig.SCHEMA_BIDLADDER
 
-  def mapRecord(record: Node, generatedAt: Long): Object = {
+  def mapRecord(record: Node, generatedAt: Long): Struct = {
     new Struct(schema)
       .put("date", (record \ "DATE").text.toString)
       .put("ptu", (record \ "PTU").text.toInt)
