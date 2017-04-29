@@ -35,14 +35,10 @@ object HttpXmlReader extends XmlReader with StrictLogging {
 
 object TennetHelper extends StrictLogging {
 
-  def NodeSeqToDouble(value: NodeSeq): Option[Double] = {
+  def NodeSeqToDouble(value: NodeSeq): java.lang.Double = {
     Try(value.text.toDouble) match {
-      case Success(v) => Some(v);
-      case Failure(e) => None
+      case Success(v) => v;
+      case Failure(e) => null
     }
   }
-
-  //  def createPrevDaysList(days : Int) =   List.tabulate(days)(n => LocalDate.now.plusDays(-(n+1)))
-  //
-  //  def createNextDaysList(days : Int) =   List.tabulate(days)(n => LocalDate.now.plusDays((n)))
 }

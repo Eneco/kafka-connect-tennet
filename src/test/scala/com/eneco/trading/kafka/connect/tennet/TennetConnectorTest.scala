@@ -45,10 +45,10 @@ class TennetConnectorTest extends TestBase {
   }
 
   test("testing empty doubles") {
-    val midprice = TennetHelper.NodeSeqToDouble((xml \\ "RECORD").head \\ "MID_PRICE").getOrElse(0)
-    val maxprice = TennetHelper.NodeSeqToDouble((xml \\ "RECORD").head \\ "MMAX_PRICE").getOrElse(0)
+    val midprice = TennetHelper.NodeSeqToDouble((xml \\ "RECORD").head \\ "MID_PRICE")
+    val maxprice = TennetHelper.NodeSeqToDouble((xml \\ "RECORD").head \\ "MAX_PRICE")
     assert(midprice == 35.14)
-    assert(maxprice == 0)
+    assert(maxprice == null)
   }
 
   test("two backoff failures") {

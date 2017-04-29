@@ -1,6 +1,7 @@
 package com.eneco.trading.kafka.connect.tennet
 
 import java.time.ZoneId
+import org.apache.kafka.connect.data.Struct
 
 import scala.collection.JavaConverters._
 
@@ -15,7 +16,12 @@ class TestBalanceDelta extends TestBase {
     val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = Some(xml4)
-    uut.produce.size shouldBe 1
+    val records = uut.produce
+
+    records.size shouldBe 1
+    records.head.value.asInstanceOf[Struct].get("incident_reserve_up_indicator") shouldBe 0
+    records.head.value.asInstanceOf[Struct].get("incident_reserve_down_indicator") shouldBe null
+    records.head.value.asInstanceOf[Struct].get("mid_price") shouldBe null
   }
 
   test("Balance Delta no records") {
@@ -89,15 +95,26 @@ class TestBalanceDelta extends TestBase {
     val uut = BalanceDeltaSourceRecordProducer(mock, sourceType)
 
     mock.mockXmlReader.content = Some(xml1)
+
     val records = uut.produce
-    records.head.value() shouldBe BalanceDeltaSourceRecord.struct(
-      BalanceDeltaSourceRecord(
-        1, 665, "11:04",
-        1,2,None,4,5,6,7,None,9,10,11,
-        EpochMillis("2017-01-01T11:06:00+01:00"),
-        EpochMillis("2017-01-01T11:04:00+01:00")
-      )
-    )
+    records.head.value shouldBe new Struct(TennetSourceConfig.SCHEMA_IMBALANCE)
+      .put("number", 1.toLong)
+      .put("sequence_number", 665.toLong)
+      .put("time", "11:04")
+      .put("igcccontribution_up", 1.0)
+      .put("igcccontribution_down", 2.0)
+      .put("upward_dispatch", null)
+      .put("downward_dispatch", 4.0)
+      .put("reserve_upward_dispatch", 5.0)
+      .put("reserve_downward_dispatch", 6.0)
+      .put("incident_reserve_up_indicator", 7.0)
+      .put("incident_reserve_down_indicator", null)
+      .put("min_price", 9.0)
+      .put("mid_price", 10.0)
+      .put("max_price", 11.0)
+      .put("generated_at", EpochMillis("2017-01-01T11:06:00+01:00"))
+      .put("value_time", EpochMillis("2017-01-01T11:04:00+01:00"))
+
   }
 
   test("Balance Delta should handle bad xml") {
@@ -211,7 +228,7 @@ class TestBalanceDelta extends TestBase {
       |    <RESERVE_UPWARD_DISPATCH>0</RESERVE_UPWARD_DISPATCH>
       |    <RESERVE_DOWNWARD_DISPATCH>0</RESERVE_DOWNWARD_DISPATCH>
       |    <INCIDENT_RESERVE_UP_INDICATOR>0</INCIDENT_RESERVE_UP_INDICATOR>
-      |    <INCIDENT_RESERVE_DOWN_INDICATOR>0</INCIDENT_RESERVE_DOWN_INDICATOR>
+      |    <INCIDENT_RESERVE_DOWN_INDICATOR></INCIDENT_RESERVE_DOWN_INDICATOR>
       |    <MID_PRICE>*</MID_PRICE>
       |  </RECORD>
       |</BALANCE_DELTA>
