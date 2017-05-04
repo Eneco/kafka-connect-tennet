@@ -134,9 +134,6 @@ object TennetSourceConfig {
     .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
-
-
-
   val config: ConfigDef = new ConfigDef()
     .define(BALANCE_DELTA_TOPIC, Type.STRING, Importance.HIGH, BALANCE_DELTA_TOPIC_DOC)
     .define(IMBALANCE_TOPIC, Type.STRING, Importance.HIGH, IMBALANCE_TOPIC_DOC)

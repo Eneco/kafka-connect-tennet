@@ -35,7 +35,9 @@ class TennetSourceConnector extends SourceConnector with StrictLogging {
     logger.info(props.toString())
     configProps = Some(props)
     Try(new TennetSourceConfig(props)) match {
-      case Failure(_) => throw new ConnectException("Couldn't start due to configuration error")
+      case Failure(e) => {
+        throw new ConnectException(s"Couldn't start due to configuration error $e")
+      }
       case _ => logger.info("Started Tennet source connector")
     }
   }
