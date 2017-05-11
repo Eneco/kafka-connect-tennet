@@ -13,6 +13,7 @@ object TennetSourceTypes {
     val bidLaddertotalTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOTAL_TOPIC)
     val settlementPriceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
     val priceLadderTopic = cfg.getString(TennetSourceConfig.PRICE_LADDER_TOPIC)
+    val settledRRPTopic = cfg.getString("")
     val url = cfg.getString(TennetSourceConfig.URL)
     val zoneId = ZoneId.of(cfg.getString(TennetSourceConfig.TIMEZONE))
 
@@ -41,5 +42,6 @@ object SourceName extends Enumeration {
   val BID_LADDER_TOTAL_NAME = "laddersizetotal"
   val IMBALANCE_PRICE_NAME = "imbalanceprice"
   val PRICE_LADDER_NAME = "priceladder"
+  val SETTLED_RRP_NAME = "pastrecordrrpdeployed"
 }
 
