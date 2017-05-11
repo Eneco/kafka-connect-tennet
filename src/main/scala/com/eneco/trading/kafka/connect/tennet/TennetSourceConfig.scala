@@ -136,33 +136,21 @@ object TennetSourceConfig {
     .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
-  <DATE>2017-05-06T00:00:00</DATE>
-    <PTU>1</PTU>
-    <PERIOD_FROM>00:00</PERIOD_FROM>
-    <PERIOD_UNTIL>00:15</PERIOD_UNTIL>
-      <DOWNWARD_RESERVE/>
-    <DOWNWARD_POWER>-15366</DOWNWARD_POWER>
-    <UPWARD_POWER>849</UPWARD_POWER>
-      <UPWARD_RESERVE/>
-      <UPWARD_INCIDENT_RESERVE/>
-    <VOLUME>16215</VOLUME>
-    <TOTALS>-14517</TOTALS>
-
   val SCHEMA_SETTLED_RRP = SchemaBuilder.struct().name(SETTLED_RRP_TOPIC)
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
     .field("period_from", Schema.STRING_SCHEMA)
     .field("period_until", Schema.STRING_SCHEMA)
-    .field("downward_reserve", Schema.STRING_SCHEMA)
-    .field("downward_power", Schema.STRING_SCHEMA)
-    .field("downward_incident_reserve", Schema.STRING_SCHEMA)
-    .field("upward_reserve", Schema.STRING_SCHEMA)
-    .field("upward_power", Schema.STRING_SCHEMA)
-    .field("upward_incident_reserve", Schema.STRING_SCHEMA)
-    .field("volume", Schema.STRING_SCHEMA)
-    .field("totals", Schema.STRING_SCHEMA)
-    .field("generated_at", Schema.STRING_SCHEMA)
-    .field("ptu_start", Schema.STRING_SCHEMA)
+    .field("downward_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("downward_power", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("downward_incident_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("upward_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("upward_power", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("upward_incident_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("volume", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("totals", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
   val config: ConfigDef = new ConfigDef()
@@ -171,6 +159,7 @@ object TennetSourceConfig {
     .define(BID_LADDER_TOPIC, Type.STRING, Importance.HIGH, BID_LADDER_DOC)
     .define(BID_LADDER_TOTAL_TOPIC, Type.STRING, Importance.HIGH, BID_LADDER_TOTAL_DOC)
     .define(PRICE_LADDER_TOPIC, Type.STRING, Importance.HIGH, PRICE_LADDER_DOC)
+    .define(SETTLED_RRP_TOPIC, Type.STRING, Importance.HIGH, SETTLED_RRP_DOC)
     .define(URL, Type.STRING, URL_DEFAULT, Importance.HIGH, URL_DOC)
     .define(REFRESH_RATE, Type.STRING, REFRESH_RATE_DEFAULT, Importance.LOW, REFRESH_RATE_DOC)
     .define(MAX_BACK_OFF, Type.STRING, MAX_BACK_OFF_DEFAULT, Importance.LOW, MAX_BACK_OFF_DOC)
