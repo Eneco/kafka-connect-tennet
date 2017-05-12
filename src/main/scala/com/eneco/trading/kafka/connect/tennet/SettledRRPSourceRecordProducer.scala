@@ -8,23 +8,23 @@ import scala.xml.Node
 case class SettledRRPSourceRecordProducer (readers: ServiceProvider, sourceType: SourceType)
   extends SourceRecordProducer(readers, sourceType) with StrictLogging {
 
-  override def schema = TennetSourceConfig.SCHEMA_BIDLADDER
+  override def schema = TennetSourceConfig.SCHEMA_SETTLED_RRP
 
   def mapRecord(record: Node, generatedAt: Long): Struct = {
-    // todo: map xml to struct
+
     new Struct(schema)
       .put("date", (record \ "DATE").text.toString)
       .put("ptu", (record \ "PTU").text.toLong)
       .put("period_from", (record \ "PERIOD_FROM").text.toString)
       .put("period_until", (record \ "PERIOD_UNTIL").text.toString)
-      .put("total_rampdown_required", TennetHelper.NodeSeqToDouble(record \ "TOTAL_RAMPDOWN_REQUIRED"))
-      .put("rampdown_required", TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_REQUIRED"))
-      .put("rampdown_reserve", TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_RESERVE"))
-      .put("rampdown_power", TennetHelper.NodeSeqToDouble(record \ "RAMPDOWN_POWER"))
-      .put("rampup_power", TennetHelper.NodeSeqToDouble(record \ "RAMPUP_POWER"))
-      .put("rampup_reserve", TennetHelper.NodeSeqToDouble(record \ "RAMPUP_RESERVE"))
-      .put("rampup_required", TennetHelper.NodeSeqToDouble(record \ "RAMPUP_REQUIRED"))
-      .put("total_rampup_required", TennetHelper.NodeSeqToDouble(record \ "TOTAL_RAMPUP_REQUIRED"))
+      .put("downward_reserve", TennetHelper.NodeSeqToDouble(record \ "DOWNWARD_RESERVE"))
+      .put("downward_power", TennetHelper.NodeSeqToDouble(record \ "DOWNWARD_POWER"))
+      .put("downward_incident_reserve", TennetHelper.NodeSeqToDouble(record \ "DOWNWARD_INCIDENT_RESERVE"))
+      .put("upward_reserve", TennetHelper.NodeSeqToDouble(record \ "UPWARD_RESERVE"))
+      .put("upward_power", TennetHelper.NodeSeqToDouble(record \ "UPWARD_POWER"))
+      .put("upward_incident_reserve", TennetHelper.NodeSeqToDouble(record \ "UPWARD_INCIDENT_RESERVE"))
+      .put("volume", TennetHelper.NodeSeqToDouble(record \ "VOLUME"))
+      .put("totals", TennetHelper.NodeSeqToDouble(record \ "TOTALS"))
       .put("generated_at", generatedAt)
       .put("ptu_start", epochMillis.fromPTU((record \ "DATE").text.toString, (record \ "PTU").text.toInt))
   }

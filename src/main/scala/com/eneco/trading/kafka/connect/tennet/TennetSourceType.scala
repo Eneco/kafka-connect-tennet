@@ -23,9 +23,10 @@ object TennetSourceTypes {
     val bidLadderTotal = SourceType(SourceName.BID_LADDER_TOTAL_NAME.toString, bidLaddertotalTopic, url, zoneId, 1, 0)
     val imbalancePrice = SourceType(SourceName.IMBALANCE_PRICE_NAME.toString, settlementPriceTopic, url, zoneId, 0, 4)
     val priceLadder = SourceType(SourceName.PRICE_LADDER_NAME.toString, priceLadderTopic, url, zoneId, 1, 0)
+    val settledRRP = SourceType(SourceName.SETTLED_RRP_NAME.toString, settledRRPTopic, url, zoneId, 1, 0)
 
 
-    List[SourceType](balanceDelta, bidLadder, bidLadderTotal, imbalancePrice, priceLadder)
+    List[SourceType](balanceDelta, bidLadder, bidLadderTotal, imbalancePrice, priceLadder, settledRRP)
   }
 }
 

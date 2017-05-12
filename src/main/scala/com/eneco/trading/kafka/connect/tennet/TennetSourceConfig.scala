@@ -26,7 +26,7 @@ object TennetSourceConfig {
   val PRICE_LADDER_TOPIC = "tennet.price.ladder.topic"
   val PRICE_LADDER_DOC = "The topic to write price ladder tennet data to."
 
-  val SETTLED_RRP_TOPIC = "tennet.settled.rrp"
+  val SETTLED_RRP_TOPIC = "tennet.settled.rrp.topic"
   val SETTLED_RRP_DOC = "The topic to write settled rrp volumes to."
 
   val URL = "tennet.url"

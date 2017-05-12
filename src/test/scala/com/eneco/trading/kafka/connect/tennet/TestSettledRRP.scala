@@ -14,6 +14,7 @@ class TestSettledRRP extends TestBase {
 
     mock.mockXmlReader.content = Some(xml1)
     val records = uut.produce
+
     records.head.value shouldBe new Struct(TennetSourceConfig.SCHEMA_SETTLED_RRP)
       .put("date", "2017-05-06T00:00:00")
       .put("ptu", 1.toLong)
@@ -28,7 +29,8 @@ class TestSettledRRP extends TestBase {
       .put("volume", 16215.0)
       .put("totals", -14517.0)
       .put("generated_at", EpochMillis("2017-01-01T11:06:00+01:00"))
-      .put("ptu_start", EpochMillis("2017-05-06T00:00:00+01:00"))
+      .put("ptu_start", EpochMillis("2017-05-06T00:00:00+02:00"))  // on 2017-05-06 there is +02:00 between cet and utc
+
   }
 
   val xml1 =
