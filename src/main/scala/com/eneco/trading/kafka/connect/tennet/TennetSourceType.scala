@@ -13,18 +13,16 @@ object TennetSourceTypes {
     val bidLaddertotalTopic = cfg.getString(TennetSourceConfig.BID_LADDER_TOTAL_TOPIC)
     val settlementPriceTopic = cfg.getString(TennetSourceConfig.IMBALANCE_TOPIC)
     val priceLadderTopic = cfg.getString(TennetSourceConfig.PRICE_LADDER_TOPIC)
-    val settledRRPTopic = cfg.getString("")
+    val settledRRPTopic = cfg.getString(TennetSourceConfig.SETTLED_RRP_TOPIC)
     val url = cfg.getString(TennetSourceConfig.URL)
     val zoneId = ZoneId.of(cfg.getString(TennetSourceConfig.TIMEZONE))
-
 
     val balanceDelta = SourceType(SourceName.BALANCE_DELTA_NAME.toString, imbalanceBalanceTopic, url, zoneId, 0, 0)
     val bidLadder = SourceType(SourceName.BID_LADDER_NAME.toString, bidLadderTopic, url, zoneId, 1, 0)
     val bidLadderTotal = SourceType(SourceName.BID_LADDER_TOTAL_NAME.toString, bidLaddertotalTopic, url, zoneId, 1, 0)
     val imbalancePrice = SourceType(SourceName.IMBALANCE_PRICE_NAME.toString, settlementPriceTopic, url, zoneId, 0, 4)
     val priceLadder = SourceType(SourceName.PRICE_LADDER_NAME.toString, priceLadderTopic, url, zoneId, 1, 0)
-    val settledRRP = SourceType(SourceName.SETTLED_RRP_NAME.toString, settledRRPTopic, url, zoneId, 1, 0)
-
+    val settledRRP = SourceType(SourceName.SETTLED_RRP_NAME.toString, settledRRPTopic, url, zoneId, 0, 2)
 
     List[SourceType](balanceDelta, bidLadder, bidLadderTotal, imbalancePrice, priceLadder, settledRRP)
   }
