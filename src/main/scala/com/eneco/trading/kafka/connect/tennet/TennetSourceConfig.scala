@@ -45,7 +45,7 @@ object TennetSourceConfig {
   val TIMEZONE_DEFAULT = "Europe/Amsterdam"
   val TIMEZONE_DOC = "Timezone of the tennet API, used for deriving epochmillis for records"
 
-  val SCHEMA_IMBALANCE = SchemaBuilder.struct().name(IMBALANCE_TOPIC)
+  val SCHEMA_IMBALANCE = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalance")
     .field("number", Schema.INT64_SCHEMA)
     .field("sequence_number", Schema.INT64_SCHEMA)
     .field("time", Schema.STRING_SCHEMA)
@@ -64,7 +64,7 @@ object TennetSourceConfig {
     .field("value_time", Schema.INT64_SCHEMA)
     .build()
 
-  val SCHEMA_BIDLADDER = SchemaBuilder.struct().name(BID_LADDER_TOPIC)
+  val SCHEMA_BIDLADDER = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.bidladder")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
     .field("period_from", Schema.STRING_SCHEMA)
@@ -81,7 +81,7 @@ object TennetSourceConfig {
     .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
-  val SCHEMA_BIDLADDERTOTAL = SchemaBuilder.struct().name(BID_LADDER_TOPIC)
+  val SCHEMA_BIDLADDERTOTAL = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.bidladdertotal")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
     .field("period_from", Schema.STRING_SCHEMA)
@@ -98,7 +98,7 @@ object TennetSourceConfig {
     .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
-  val SCHEMA_IMBALANCEPRICE = SchemaBuilder.struct().name(IMBALANCE_TOPIC)
+  val SCHEMA_IMBALANCEPRICE = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.imbalanceprice")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
     .field("period_from", Schema.STRING_SCHEMA)
@@ -115,7 +115,7 @@ object TennetSourceConfig {
     .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
-  val SCHEMA_PRICELADDER = SchemaBuilder.struct().name(PRICE_LADDER_TOPIC)
+  val SCHEMA_PRICELADDER = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.priceladder")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
     .field("period_from", Schema.STRING_SCHEMA)
@@ -136,7 +136,7 @@ object TennetSourceConfig {
     .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
-  val SCHEMA_SETTLED_RRP = SchemaBuilder.struct().name(SETTLED_RRP_TOPIC)
+  val SCHEMA_SETTLED_RRP = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.settledrrp")
     .field("date", Schema.STRING_SCHEMA)
     .field("ptu", Schema.INT64_SCHEMA)
     .field("period_from", Schema.STRING_SCHEMA)
