@@ -67,7 +67,7 @@ class TennetConnectorTest extends TestBase {
 
     val srcTypes: Seq[SourceType] = TennetSourceTypes.createSources(cfg)
 
-    assert(srcTypes.size == 5)
+    assert(srcTypes.size == 6)
     assert(srcTypes.count(_.name == "balancedelta2017") == 1)
     assert(srcTypes.count(_.topic == imbTopic) == 1)
   }

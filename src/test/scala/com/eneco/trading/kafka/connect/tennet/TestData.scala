@@ -78,7 +78,8 @@ object TestData {
       "tennet.imbalance.topic" -> "tennet_settlementprice",
       "tennet.bid.ladder.topic" -> "tennet_bidladder",
       "tennet.bid.ladder.total.topic" -> "tennet_bidladdertotal",
-      "tennet.price.ladder.topic" -> "tennet_priceladder"
+      "tennet.price.ladder.topic" -> "tennet_priceladder",
+      "tennet.settled.rrp.topic" -> "tennet_settled_rrp"
 
     )
     new TennetSourceConfig(props.asJava)

@@ -26,6 +26,8 @@ object TennetSourceConfig {
   val PRICE_LADDER_TOPIC = "tennet.price.ladder.topic"
   val PRICE_LADDER_DOC = "The topic to write price ladder tennet data to."
 
+  val SETTLED_RRP_TOPIC = "tennet.settled.rrp.topic"
+  val SETTLED_RRP_DOC = "The topic to write settled rrp volumes to."
 
   val URL = "tennet.url"
   val URL_DOC = "Tennet endpoint"
@@ -134,12 +136,30 @@ object TennetSourceConfig {
     .field("ptu_start", Schema.INT64_SCHEMA)
     .build()
 
+  val SCHEMA_SETTLED_RRP = SchemaBuilder.struct().name("com.eneco.trading.kafka.connect.tennet.settledrrp")
+    .field("date", Schema.STRING_SCHEMA)
+    .field("ptu", Schema.INT64_SCHEMA)
+    .field("period_from", Schema.STRING_SCHEMA)
+    .field("period_until", Schema.STRING_SCHEMA)
+    .field("downward_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("downward_power", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("downward_incident_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("upward_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("upward_power", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("upward_incident_reserve", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("volume", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("totals", Schema.OPTIONAL_FLOAT64_SCHEMA)
+    .field("generated_at", Schema.INT64_SCHEMA)
+    .field("ptu_start", Schema.INT64_SCHEMA)
+    .build()
+
   val config: ConfigDef = new ConfigDef()
     .define(BALANCE_DELTA_TOPIC, Type.STRING, Importance.HIGH, BALANCE_DELTA_TOPIC_DOC)
     .define(IMBALANCE_TOPIC, Type.STRING, Importance.HIGH, IMBALANCE_TOPIC_DOC)
     .define(BID_LADDER_TOPIC, Type.STRING, Importance.HIGH, BID_LADDER_DOC)
     .define(BID_LADDER_TOTAL_TOPIC, Type.STRING, Importance.HIGH, BID_LADDER_TOTAL_DOC)
     .define(PRICE_LADDER_TOPIC, Type.STRING, Importance.HIGH, PRICE_LADDER_DOC)
+    .define(SETTLED_RRP_TOPIC, Type.STRING, Importance.HIGH, SETTLED_RRP_DOC)
     .define(URL, Type.STRING, URL_DEFAULT, Importance.HIGH, URL_DOC)
     .define(REFRESH_RATE, Type.STRING, REFRESH_RATE_DEFAULT, Importance.LOW, REFRESH_RATE_DOC)
     .define(MAX_BACK_OFF, Type.STRING, MAX_BACK_OFF_DEFAULT, Importance.LOW, MAX_BACK_OFF_DOC)

@@ -52,6 +52,7 @@ class TennetSourcePoller(cfg: TennetSourceConfig, offsetStorageReader: OffsetSto
       case SourceName.BID_LADDER_TOTAL_NAME => BidLadderTotalSourceRecordProducer(serviceProvider, sourceType)
       case SourceName.IMBALANCE_PRICE_NAME => ImbalancePriceSourceRecordProducer(serviceProvider, sourceType)
       case SourceName.PRICE_LADDER_NAME => PriceLadderSourceRecordProducer(serviceProvider, sourceType)
+      case SourceName.SETTLED_RRP_NAME => SettledRRPSourceRecordProducer(serviceProvider, sourceType)
       case _ => throw new RuntimeException(s"Unkown sourceType: $sourceType")
     }
   }
