@@ -10,7 +10,7 @@ Reads the imbalance data (XML) form the tennet website and push it to Kafka
 | Name                     | Optional | Default | Description                                  |
 |--------------------------|----------|---------|----------------------------------------------|
 | tennet.imbalance.topic   | No       | - | The topic to write imbalance data to.        |
-| tennet.setttlement.prices.topic | No | - | The topic to write settlement price data to. |
+| tennet.settlement.prices.topic | No | - | The topic to write settlement price data to. |
 | tennet.bidladder.topic   | No       | -  | The topic to write bid ladder data to.       |
 | tennet.bidladder.total.topic   | No       | - | The topic to write bidladder total data to.        |
 | tennet.balance.delta.topic | No | - | The topic to write balance delta data to. |
